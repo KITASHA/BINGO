@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- スマホ対応 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ビンゴ表示</title>
+
+    <!-- TailwindCSS読み込み -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <!-- 全体コンテナ -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+
+        <!-- タイトル -->
+        <h1 class="text-6xl font-bold text-center mb-12">
+            BINGO
+        </h1>
+
+        <!-- 現在の抽選結果表示エリア -->
+        <div class="bg-slate-900 rounded-3xl p-16 shadow-xl text-center">
+
+            <p class="text-slate-400 text-2xl mb-8">
+                抽選結果
+            </p>
+
+            <!-- 最新の数字を表示 -->
+            <div
+    id="current-number"
+    class="font-black break-words"
+>
+    -
+</div>
+
+        </div>
+
+        <!-- 抽選履歴エリア -->
+        <div class="mt-10 bg-slate-900 rounded-3xl p-6">
+
+            <h2 class="text-2xl font-bold mb-4">
+                抽選履歴
+            </h2>
+
+            <!-- JavaScriptで履歴を追加 -->
+            <div
+                id="history"
+                class="flex flex-wrap gap-3"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // 現在の状態を取得して画面更新
+        async function refresh() {
+
+    try {
+
+        const response = await fetch("/state");
+        const data = await response.json();
+
+        const current =
+            document.getElementById("current-number");
+
+        current.textContent = data.current;
+
+        if (data.type === "quiz") {
+
+            current.className =
+                "text-5xl md:text-7xl font-black break-words";
+
+        } else {
+
+            current.className =
+                "text-[12rem] md:text-[16rem] font-black leading-none";
+
+        }
+
+        const historyDiv =
+            document.getElementById("history");
+
+        historyDiv.innerHTML = "";
+
+        for (const num of data.history.slice().reverse()) {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
+
+            item.textContent = num;
+
+            historyDiv.appendChild(item);
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+}
+        // 0.5秒ごとに更新
+        setInterval(refresh, 500);
+
+        // 初回表示
+        refresh();
+    </script>
+
+</body>
+</html>

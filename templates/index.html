@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビンゴ抽選</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <div class="max-w-4xl mx-auto px-6 py-12">
+
+        <h1 class="text-5xl font-bold text-center mb-10">
+            BINGO
+        </h1>
+
+        <div class="bg-slate-900 rounded-3xl p-10 shadow-xl text-center">
+
+            <p class="text-slate-400 mb-4">
+                抽選結果
+            </p>
+
+            <div
+                id="current-number"
+                class="text-8xl font-black mb-8"
+            >
+                -
+            </div>
+
+            <button
+                onclick="drawNumber()"
+                class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-xl font-bold transition"
+            >
+                抽選する
+            </button>
+
+        </div>
+
+        <div class="mt-10 bg-slate-900 rounded-3xl p-6">
+
+            <h2 class="text-2xl font-bold mb-4">
+                抽選履歴
+            </h2>
+
+            <div
+                id="history"
+                class="flex flex-wrap gap-2"
+            >
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        async function drawNumber() {
+
+            const response = await fetch("/draw");
+            const data = await response.json();
+
+            if (data.number === null) {
+                alert("すべての数字が抽選済みです");
+                return;
+            }
+
+            if (data.type === "event") {
+    document.getElementById("current-number").textContent =
+        data.message;
+}
+else if (data.type === "number") {
+    document.getElementById("current-number").textContent =
+        data.number;
+}
+
+            const historyDiv = document.getElementById("history");
+
+            historyDiv.innerHTML = "";
+
+            data.history.forEach(num => {
+
+                historyDiv.innerHTML += `
+                    <div class="bg-slate-800 px-4 py-2 rounded-xl">
+                        ${num}
+                    </div>
+                `;
+
+            });
+        }
+    </script>
+
+</body>
+</html>

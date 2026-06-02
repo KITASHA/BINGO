@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ビンゴ操作画面</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <div class="max-w-5xl mx-auto px-6 py-12">
+
+        <h1 class="text-6xl font-bold text-center mb-12">
+            BINGO
+        </h1>
+
+        <div class="bg-slate-900 rounded-3xl p-10 shadow-xl text-center">
+
+            <p class="text-slate-400 text-xl mb-4">
+                操作画面
+            </p>
+
+            <div
+                id="result"
+                class="text-8xl font-black mb-10"
+            >
+                -
+            </div>
+
+            <div class="flex justify-center gap-4">
+
+                <button
+                    onclick="drawNumber()"
+                    class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-xl font-bold"
+                >
+                    抽選する
+                </button>
+<div class="mb-6">
+
+    <select
+        id="quiz-select"
+        class="bg-slate-800 px-4 py-3 rounded-xl text-lg w-full"
+    >
+        <option value="0">ライト兄弟は何人兄弟？</option>
+        <option value="1">五輪の輪は何色？</option>
+        <option value="2">世界で最も面積が大きい国は？</option>
+        <option value="3">1年は何日？</option>
+        <option value="4">日本の県はいくつある？</option>
+        <option value="5">富士山の標高は何m？</option>
+    </select>
+
+</div>
+                <button
+                    onclick="showQuiz()"
+                    class="bg-amber-600 hover:bg-amber-500 px-8 py-4 rounded-2xl text-xl font-bold"
+                >
+                    問題表示
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        async function drawNumber() {
+
+            const response = await fetch("/draw");
+            const data = await response.json();
+
+            if (!data.success) {
+                alert("すべて抽選済みです");
+                return;
+            }
+
+            document.getElementById("result").textContent =
+                data.number;
+        }
+
+        async function showQuiz() {
+
+    const quizId =
+        document.getElementById("quiz-select").value;
+
+    await fetch(`/quiz/${quizId}`);
+
+    document.getElementById("result").textContent =
+        "問題表示中";
+}
+    </script>
+
+</body>
+</html>
