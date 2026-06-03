@@ -17,7 +17,11 @@ drawn_numbers = []
 # クイズ一覧
 quiz_list = [
     "ライト兄弟は何人兄弟？",
-    
+    "五輪の輪は何色？",
+    "世界で最も面積が大きい国は？",
+    "1年は何日？",
+    "日本の県はいくつある？",
+    "富士山の標高は何m？"
 ]
 
 
@@ -65,13 +69,16 @@ async def draw():
     }
 
 
-@app.get("/quiz")
-async def quiz():
+@app.get("/quiz/{quiz_id}")
+async def quiz_with_id(quiz_id: int):
 
     global current_item
     global current_type
 
-    question = random.choice(quiz_list)
+    if quiz_id < 0 or quiz_id >= len(quiz_list):
+        return {"success": False}
+
+    question = quiz_list[quiz_id]
 
     current_item = question
     current_type = "quiz"
