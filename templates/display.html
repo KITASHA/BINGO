@@ -54,66 +54,103 @@
             </div>
 
         </div>
+        <button
+    id="open-answer"
+    class="fixed bottom-8 right-8 bg-amber-600 px-6 py-3 rounded-xl hidden">
+    答え
+</button>
+
+<div
+    id="answer-modal"
+    class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+
+    <div class="bg-slate-900 p-10 rounded-3xl max-w-2xl">
+        <div id="answer-text"
+             class="text-4xl font-bold text-center">
+        </div>
+    </div>
+
+</div>
 
     </div>
 
     <script>
 
-        // 現在の状態を取得して画面更新
-        async function refresh() {
+    // 現在の状態を取得して画面更新
+    async function refresh() {
 
-    try {
+        try {
 
-        const response = await fetch("/state");
-        const data = await response.json();
+            const response = await fetch("/state");
+            const data = await response.json();
 
-        const current =
-            document.getElementById("current-number");
+            const current =
+                document.getElementById("current-number");
 
-        current.textContent = data.current;
+            current.textContent = data.current;
 
-        if (data.type === "quiz") {
+            document.getElementById("answer-text")
+                .textContent = data.answer || "";
 
-            current.className =
-                "text-5xl md:text-7xl font-black break-words";
+            if (data.type === "quiz") {
 
-        } else {
+                current.className =
+                    "text-5xl md:text-7xl font-black break-words";
 
-            current.className =
-                "text-[12rem] md:text-[16rem] font-black leading-none";
+            } else {
+
+                current.className =
+                    "text-[12rem] md:text-[16rem] font-black leading-none";
+
+            }
+
+            const historyDiv =
+                document.getElementById("history");
+
+            historyDiv.innerHTML = "";
+
+            for (const num of data.history.slice().reverse()) {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
+
+                item.textContent = num;
+
+                historyDiv.appendChild(item);
+            }
+
+            const modal =
+                document.getElementById("answer-modal");
+
+            if (data.show_answer) {
+
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+
+            } else {
+
+                modal.classList.remove("flex");
+                modal.classList.add("hidden");
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
 
         }
-
-        const historyDiv =
-            document.getElementById("history");
-
-        historyDiv.innerHTML = "";
-
-        for (const num of data.history.slice().reverse()) {
-
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
-
-            item.textContent = num;
-
-            historyDiv.appendChild(item);
-        }
-
-    } catch (error) {
-
-        console.error(error);
-
     }
-}
-        // 0.5秒ごとに更新
-        setInterval(refresh, 500);
 
-        // 初回表示
-        refresh();
-    </script>
+        // 0.5秒ごとに更新
+    setInterval(refresh, 500);
+
+    // 初回表示
+    refresh();
+
+</script>
 
 </body>
 </html>
