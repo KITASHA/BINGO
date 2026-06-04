@@ -89,6 +89,10 @@ async def quiz_with_id(quiz_id: int):
         "message": question
     }
 
+@app.get("/quiz-list")
+async def get_quiz_list():
+    return {"quizzes": quiz_list}
+
 
 @app.get("/state")
 async def state():
