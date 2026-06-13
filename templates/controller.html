@@ -37,7 +37,7 @@
                 </button>
 
                 <button onclick="toggleAnswer()"
-    class="bg-emerald-600 hover:bg-emerald-500 px-8 py-4 rounded-2xl text-xl font-bold">
+   class="bg-slate-600 hover:bg-slate-500 px-8 py-4 rounded-2xl text-xl font-bold">
     答え
 </button>
             </div>
@@ -45,57 +45,84 @@
     </div>
 
     <script>
-        // 抽選
-        async function drawNumber() {
-            const res = await fetch("/draw");
-            const data = await res.json();
+      // 数字を抽選
+async function drawNumber() {
 
-            if (!data.success) {
-                alert("すべて抽選済みです");
-                return;
-            }
+    const res = await fetch("/draw");
+    const data = await res.json();
 
-            document.getElementById("result").textContent = data.number;
-        }
+    // 全て抽選済み
+    if (!data.success) {
+        alert("すべて抽選済みです");
+        return;
+    }
 
-        // クイズ一覧取得
-        async function loadQuizList() {
-            const res = await fetch("/quiz-list");
-            const data = await res.json();
+    document.getElementById("result").textContent =
+        data.number;
+}
 
-            const select = document.getElementById("quiz-select");
-            select.innerHTML = "";
 
-            data.quizzes.forEach((quiz, index) => {
-                const option = document.createElement("option");
-                option.value = index;
-                option.textContent = quiz.text;
-                select.appendChild(option);
-            });
-        }
+// クイズ一覧を取得してセレクトボックスへ設定
+async function loadQuizList() {
 
-        // クイズ表示
-        async function showQuiz() {
-            const quizId = parseInt(
-                document.getElementById("quiz-select").value
-            );
+    const res = await fetch("/quiz-list");
+    const data = await res.json();
 
-            const res = await fetch(`/quiz/${quizId}`);
-            const data = await res.json();
+    const select =
+        document.getElementById("quiz-select");
 
-            console.log(data);
+    select.innerHTML = "";
 
-            document.getElementById("result").textContent = "問題表示中";
-        }
-        async function showAnswer() {
+    data.quizzes.forEach((quiz, index) => {
+
+        const option =
+            document.createElement("option");
+
+        option.value = index;
+        option.textContent = quiz.text;
+
+        select.appendChild(option);
+
+    });
+}
+
+
+// 選択中のクイズを表示
+async function showQuiz() {
+
+    const quizId = parseInt(
+        document.getElementById("quiz-select").value
+    );
+
+    const res =
+        await fetch(`/quiz/${quizId}`);
+
+    const data =
+        await res.json();
+
+    console.log(data);
+
+    document.getElementById("result").textContent =
+        "問題表示中";
+}
+
+
+// 回答を表示
+async function showAnswer() {
 
     await fetch("/show-answer");
 
 }
+
+
+// 回答表示のON/OFF切替
 async function toggleAnswer() {
 
-    const stateRes = await fetch("/state");
-    const state = await stateRes.json();
+    const stateRes =
+        await fetch("/state");
+
+    const state =
+        await stateRes.json();
 
     if (state.show_answer) {
 
@@ -108,8 +135,8 @@ async function toggleAnswer() {
     }
 }
 
-
-        loadQuizList();
+// 初期表示時にクイズ一覧を読み込む
+loadQuizList();
     </script>
 </body>
 </html>

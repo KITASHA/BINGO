@@ -75,81 +75,86 @@
     </div>
 
     <script>
+// サーバーから現在状態を取得して画面へ反映
+async function refresh() {
 
-    // 現在の状態を取得して画面更新
-    async function refresh() {
+    try {
 
-        try {
+        const response = await fetch("/state");
+        const data = await response.json();
 
-            const response = await fetch("/state");
-            const data = await response.json();
+        // 現在表示中の数字または問題文
+        const current =
+            document.getElementById("current-number");
 
-            const current =
-                document.getElementById("current-number");
+        current.textContent = data.current;
 
-            current.textContent = data.current;
+        // 回答モーダル用テキスト
+        document.getElementById("answer-text")
+    .textContent =
+        data.type === "quiz"
+            ? (data.answer || "")
+            : "";
 
-            document.getElementById("answer-text")
-                .textContent = data.answer || "";
+        // 数字表示と問題表示で文字サイズを切り替え
+        if (data.type === "quiz") {
 
-            if (data.type === "quiz") {
+            current.className =
+                "text-5xl md:text-7xl font-black break-words";
 
-                current.className =
-                    "text-5xl md:text-7xl font-black break-words";
+        } else {
 
-            } else {
-
-                current.className =
-                    "text-[12rem] md:text-[16rem] font-black leading-none";
-
-            }
-
-            const historyDiv =
-                document.getElementById("history");
-
-            historyDiv.innerHTML = "";
-
-            for (const num of data.history.slice().reverse()) {
-
-                const item =
-                    document.createElement("div");
-
-                item.className =
-                    "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
-
-                item.textContent = num;
-
-                historyDiv.appendChild(item);
-            }
-
-            const modal =
-                document.getElementById("answer-modal");
-
-            if (data.show_answer) {
-
-                modal.classList.remove("hidden");
-                modal.classList.add("flex");
-
-            } else {
-
-                modal.classList.remove("flex");
-                modal.classList.add("hidden");
-
-            }
-
-        } catch (error) {
-
-            console.error(error);
+            current.className =
+                "text-[12rem] md:text-[16rem] font-black leading-none";
 
         }
+
+        // 抽選履歴を再構築
+        const historyDiv =
+            document.getElementById("history");
+
+        historyDiv.innerHTML = "";
+
+        for (const num of data.history.slice().reverse()) {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
+
+            item.textContent = num;
+
+            historyDiv.appendChild(item);
+        }
+
+        // 回答表示状態に応じてモーダル表示切替
+        const modal =
+            document.getElementById("answer-modal");
+
+        if (data.show_answer) {
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+
+        } else {
+
+            modal.classList.remove("flex");
+            modal.classList.add("hidden");
+
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
     }
+}
+// 0.5秒ごとに更新
+setInterval(refresh, 500);
 
-        // 0.5秒ごとに更新
-    setInterval(refresh, 500);
-
-    // 初回表示
-    refresh();
-
+// 初回表示
+refresh();
 </script>
 
 </body>

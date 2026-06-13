@@ -2,120 +2,104 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 import random
 
+# アプリの状態を管理するオブジェクト
+from state import state
+
+# quizzes.jsonから読み込まれたクイズ一覧
+from quiz_service import quiz_list
+
 app = FastAPI()
+
+# templatesフォルダ内のHTMLを利用する設定
 templates = Jinja2Templates(directory="templates")
 
-# 現在表示中の内容
-current_item = "-"
-show_answer = False
 
-# 表示タイプ
-current_type = "number"
-
-# 抽選済み履歴
-current_number = None
-pending_number = None
-current_answer = ""
-drawn_numbers = []
-
-# クイズ一覧
-quiz_list = [
-    {"number": 7, "text": "ライト兄弟の兄弟の数",
-        "answer": "実は7人兄弟"},
-    {"number": 48, "text": "エベレストは標高88○○.86m",
-        "answer": "8848.86m"},
-    {"number": 42, "text": "千手観音の腕の本数",
-        "answer": "42本"},
-    {"number": 10, "text": "50円玉と10円玉のうち重い方",
-        "answer": "実は10円のほうが重いんです"},
-    {"number": 75, "text": "最大値ゲーム",
-        "answer": "優勝した人の番号を全員空けれます"}
-]
-
-
+# 表示用画面
 @app.get("/display")
 async def display(request: Request):
+
     return templates.TemplateResponse(
         request=request,
         name="display.html"
     )
 
 
+# 操作用画面
 @app.get("/controller")
 async def controller(request: Request):
+
     return templates.TemplateResponse(
         request=request,
         name="controller.html"
     )
 
+
+# 数字を抽選する
 @app.get("/draw")
 async def draw():
 
-    global pending_number
-    global current_number
-    global current_item
-    global current_type
+    # 直前に出題したクイズの番号を履歴へ追加
+    state.add_to_history(state.pending_number)
 
-    # 問題の数字を履歴へ
-    if pending_number is not None:
+    # クイズ番号の確定が終わったのでリセット
+    state.pending_number = None
 
-        if pending_number not in drawn_numbers:
-            drawn_numbers.append(pending_number)
+    # 現在表示中が数字なら履歴へ追加
+    if state.current_type == "number":
+        state.add_to_history(state.current_number)
 
-        pending_number = None
-
-    # 前回の抽選数字を履歴へ
-    if current_type == "number" and current_number is not None:
-
-        if current_number not in drawn_numbers:
-            drawn_numbers.append(current_number)
-
+    # 未抽選の数字一覧を作成
     available = [
-        n for n in range(1, 76)
-        if n not in drawn_numbers
+        n
+        for n in range(1, 76)
+        if n not in state.drawn_numbers
     ]
 
+    # 全て抽選済みなら終了
     if not available:
         return {"success": False}
 
+    # ランダムに1つ選ぶ
     number = random.choice(available)
 
-    current_number = number
-    current_item = number
-    current_type = "number"
+    # 現在表示中の数字として保存
+    state.current_number = number
+    state.current_item = number
+    state.current_type = "number"
 
     return {
         "success": True,
         "number": number
     }
 
+
+# 指定したクイズを出題
 @app.get("/quiz/{quiz_id}")
 async def quiz_with_id(quiz_id: int):
 
-    global current_item
-    global current_answer
-    global current_type
-    global pending_number
-    global current_number
-    global drawn_numbers
+    # 現在表示中が数字なら履歴へ追加
+    if state.current_type == "number":
+        state.add_to_history(state.current_number)
 
-    # 表示中が数字なら履歴へ移動
-    if current_type == "number" and current_number is not None:
-
-        if current_number not in drawn_numbers:
-            drawn_numbers.append(current_number)
-
+    # 存在しないクイズ番号なら失敗
     if quiz_id < 0 or quiz_id >= len(quiz_list):
         return {"success": False}
 
+    # 対象クイズ取得
     quiz = quiz_list[quiz_id]
 
-    current_item = quiz["text"]
-    current_answer = quiz["answer"]
-    current_type = "quiz"
+    # 問題文を表示
+    state.current_item = quiz["text"]
 
-    # 問題に対応する数字は次回抽選時に確定
-    pending_number = quiz["number"]
+    # 回答を保存
+    state.current_answer = quiz["answer"]
+
+    # 現在表示中はクイズ
+    state.current_type = "quiz"
+
+    # クイズに対応する数字
+    # 次回draw時に履歴へ追加される
+    state.pending_number = quiz["number"]
 
     return {
         "success": True,
@@ -125,36 +109,50 @@ async def quiz_with_id(quiz_id: int):
     }
 
 
+# クイズ一覧取得
 @app.get("/quiz-list")
 async def get_quiz_list():
-    return {"quizzes": quiz_list}
 
+    return {
+        "quizzes": quiz_list
+    }
+
+
+# 回答表示ON
 @app.get("/show-answer")
 async def show_answer_api():
 
-    global show_answer
-
-    show_answer = True
+    state.show_answer = True
 
     return {"success": True}
 
+
+# 回答表示OFF
 @app.get("/hide-answer")
 async def hide_answer_api():
 
-    global show_answer
-
-    show_answer = False
+    state.show_answer = False
 
     return {"success": True}
 
 
+# 現在の状態取得
 @app.get("/state")
-async def state():
+async def get_state():
 
     return {
-        "current": current_item,
-        "answer": current_answer,
-        "show_answer": show_answer,
-        "type": current_type,
-        "history": drawn_numbers
+        # 現在表示中の内容（数字または問題文）
+        "current": state.current_item,
+
+        # クイズの回答
+        "answer": state.current_answer,
+
+        # 回答表示フラグ
+        "show_answer": state.show_answer,
+
+        # number または quiz
+        "type": state.current_type,
+
+        # 抽選済み数字一覧
+        "history": state.drawn_numbers
     }
