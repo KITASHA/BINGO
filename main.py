@@ -39,7 +39,7 @@ async def controller(request: Request):
 async def draw():
 
     # 直前に出題したクイズの番号を履歴へ追加
-    state.add_to_history(state.pending_number)
+    # state.add_to_history(state.pending_number)
 
     # クイズ番号の確定が終わったのでリセット
     state.pending_number = None
@@ -99,7 +99,7 @@ async def quiz_with_id(quiz_id: int):
 
     # クイズに対応する数字
     # 次回draw時に履歴へ追加される
-    state.pending_number = quiz["number"]
+    # state.pending_number = quiz["number"]
 
     return {
         "success": True,
