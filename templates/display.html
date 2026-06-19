@@ -30,11 +30,16 @@
 
             <!-- 最新の数字を表示 -->
             <div
-    id="current-number"
-    class="font-black break-words"
->
-    -
-</div>
+                id="current-number"
+                class="font-black break-words"
+            >
+                -
+            </div>
+
+            <img
+                id="quiz-image"
+                class="hidden mx-auto mt-8 max-h-[500px] rounded-2xl"
+            />
 
         </div>
 
@@ -143,6 +148,21 @@ async function refresh() {
 
         }
 
+        const img =
+             document.getElementById("quiz-image");
+
+        if (data.type === "quiz" && data.image) {
+
+            img.src = data.image;
+            img.classList.remove("hidden");
+
+        } else {
+
+            img.classList.add("hidden");
+            img.src = "";
+
+        }
+
     } catch (error) {
 
         console.error(error);
@@ -153,7 +173,7 @@ async function refresh() {
 setInterval(refresh, 500);
 
 // 初回表示
-refresh();
+refresh(console.log(data));
 </script>
 
 </body>

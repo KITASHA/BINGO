@@ -70,6 +70,7 @@ async def draw():
     state.current_number = number
     state.current_item = number
     state.current_type = "number"
+    state.current_image = None
 
     return {
         "success": True,
@@ -97,6 +98,9 @@ async def quiz_with_id(quiz_id: int):
 
     # 回答を保存
     state.current_answer = quiz["answer"]
+
+    # 画像を保存
+    state.current_image = quiz.get("image")
 
     # 現在表示中はクイズ
     state.current_type = "quiz"
@@ -161,5 +165,5 @@ async def get_state():
         # 抽選済み数字一覧
         "history": state.drawn_numbers,
 
-        "image": getattr(state, "current_image", None)
+         "image": state.current_image
     }
