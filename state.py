@@ -23,6 +23,8 @@ class BingoState:
         # 抽選済み数字の履歴
         self.drawn_numbers = []
 
+        state.current_image = quiz.get("image")
+
     # 履歴に数字を追加
     def add_to_history(self, number):
 

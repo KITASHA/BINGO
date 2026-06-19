@@ -109,7 +109,8 @@ async def quiz_with_id(quiz_id: int):
         "success": True,
         "type": "quiz",
         "message": quiz["text"],
-        "answer": quiz["answer"]
+        "answer": quiz["answer"],
+        "image": quiz.get("image")  
     }
 
 
@@ -158,5 +159,7 @@ async def get_state():
         "type": state.current_type,
 
         # 抽選済み数字一覧
-        "history": state.drawn_numbers
+        "history": state.drawn_numbers,
+
+        "image": getattr(state, "current_image", None)
     }
