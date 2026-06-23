@@ -18,7 +18,7 @@
 
         <!-- タイトル -->
         <h1 class="text-6xl font-bold text-center mb-12">
-            BINGO
+            オネスト納涼会スペシャルBINGO
         </h1>
 
         <!-- 現在の抽選結果表示エリア -->
@@ -78,7 +78,7 @@
 
     </div>
 
-    <script>
+ <script>
 // サーバーから現在状態を取得して画面へ反映
 async function refresh() {
 
@@ -87,33 +87,28 @@ async function refresh() {
         const response = await fetch("/state");
         const data = await response.json();
 
-        // 現在表示中の数字または問題文
+        // 現在表示
         const current =
             document.getElementById("current-number");
 
         current.textContent = data.current;
 
-        // 回答モーダル用テキスト
-        document.getElementById("answer-text")
-    .textContent =
-        data.type === "quiz"
-            ? (data.answer || "")
-            : "";
+        // 回答
+        document.getElementById("answer-text").textContent =
+            data.type === "quiz"
+                ? (data.answer || "")
+                : "";
 
-        // 数字表示と問題表示で文字サイズを切り替え
+        // サイズ切替
         if (data.type === "quiz") {
-
             current.className =
                 "text-5xl md:text-7xl font-black break-words";
-
         } else {
-
             current.className =
                 "text-[12rem] md:text-[16rem] font-black leading-none";
-
         }
 
-        // 抽選履歴を再構築
+        // 履歴
         const historyDiv =
             document.getElementById("history");
 
@@ -132,48 +127,62 @@ async function refresh() {
             historyDiv.appendChild(item);
         }
 
-        // 回答表示状態に応じてモーダル表示切替
+        // 回答モーダル
         const modal =
             document.getElementById("answer-modal");
 
         if (data.show_answer) {
-
             modal.classList.remove("hidden");
             modal.classList.add("flex");
-
         } else {
-
             modal.classList.remove("flex");
             modal.classList.add("hidden");
-
         }
 
+        // 画像
         const img =
              document.getElementById("quiz-image");
 
         if (data.type === "quiz" && data.image) {
-
             img.src = data.image;
             img.classList.remove("hidden");
+        } else {
+            img.classList.add("hidden");
+            img.src = "";
+        }
+
+        // ✅ タイマー
+        const timerEl =
+            document.getElementById("timer");
+
+        if (data.type === "quiz" && data.remaining !== null) {
+
+            timerEl.textContent =
+                `残り ${data.remaining} 秒`;
+
+            if (data.remaining <= 3) {
+                timerEl.classList.add("text-red-600");
+                timerEl.classList.remove("text-red-500");
+            } else {
+                timerEl.classList.add("text-red-500");
+                timerEl.classList.remove("text-red-600");
+            }
 
         } else {
 
-            img.classList.add("hidden");
-            img.src = "";
-
+            timerEl.textContent = "";
         }
 
     } catch (error) {
-
         console.error(error);
-
     }
 }
-// 0.5秒ごとに更新
+
+// 定期更新
 setInterval(refresh, 500);
 
-// 初回表示
-refresh(console.log(data));
+// 初回
+refresh();
 </script>
 
 </body>

@@ -1,37 +1,47 @@
+import time
+
 class BingoState:
     def __init__(self):
 
-        # 現在表示中の内容（数字または問題文）
+        # 現在表示中
         self.current_item = "-"
 
         # 回答表示フラグ
         self.show_answer = False
 
-        # 表示中の種類（number / quiz）
+        # 表示タイプ
         self.current_type = "number"
 
-        # 現在表示中の数字
+        # 現在の数字
         self.current_number = None
 
-        # 出題したクイズに対応する数字
-        # 次回抽選時に履歴へ追加される
         self.pending_number = None
-
-        # 現在表示中クイズの回答
         self.current_answer = ""
 
-        # 抽選済み数字の履歴
+        # 履歴
         self.drawn_numbers = []
 
         self.current_image = None
 
-    # 履歴に数字を追加
-    def add_to_history(self, number):
+        # タイマー終了時刻
+        self.timer_end = None
 
-        # Noneや重複を除外
+    # 履歴追加
+    def add_to_history(self, number):
         if number is not None and number not in self.drawn_numbers:
             self.drawn_numbers.append(number)
 
+    # タイマー開始
+    def start_timer(self, seconds: int):
+        self.timer_end = time.time() + seconds
 
-# アプリ全体で共有する状態
+    # 残り秒数
+    def get_remaining(self):
+        if self.timer_end is None:
+            return None
+
+        remaining = int(self.timer_end - time.time())
+
+        return max(0, remaining)
+
 state = BingoState()

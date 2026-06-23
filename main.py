@@ -104,6 +104,10 @@ async def quiz_with_id(quiz_id: int):
 
     # 現在表示中はクイズ
     state.current_type = "quiz"
+    
+    # 出題時にカウントダウンスタート
+    state.start_timer(10)
+
 
     # クイズに対応する数字
     # 次回draw時に履歴へ追加される
@@ -165,5 +169,7 @@ async def get_state():
         # 抽選済み数字一覧
         "history": state.drawn_numbers,
 
-         "image": state.current_image
+        "image": state.current_image,
+
+        "remaining": state.get_remaining()
     }
