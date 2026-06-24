@@ -14,9 +14,9 @@ class BingoState:
 
         # 現在の数字
         self.current_number = None
-
         self.pending_number = None
         self.current_answer = ""
+        self.current_explanation = None
 
         # 履歴
         self.drawn_numbers = []

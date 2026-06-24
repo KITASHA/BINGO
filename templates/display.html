@@ -35,6 +35,11 @@
             >
                 -
             </div>
+            
+            <p
+                id="timer"
+                class="text-4xl font-bold text-red-500 mt-6"
+            ></p>
 
             <img
                 id="quiz-image"
@@ -72,6 +77,9 @@
         <div id="answer-text"
              class="text-4xl font-bold text-center">
         </div>
+        <div id="answer-explanation"
+            class="text-xl text-slate-300 mt-4 text-center">
+        </div>
     </div>
 
 </div>
@@ -97,6 +105,11 @@ async function refresh() {
         document.getElementById("answer-text").textContent =
             data.type === "quiz"
                 ? (data.answer || "")
+                : "";
+            
+        document.getElementById("answer-explanation").textContent =
+            data.type === "quiz"
+                ? (data.explanation || "")
                 : "";
 
         // サイズ切替

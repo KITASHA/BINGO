@@ -2,11 +2,11 @@
 {
     "text": "猫は何匹",
     "answer": "3匹",
+    "explanation": "どうみても３匹",
     "image": "/static/images/cat.jpg"
   },
 
   {
-    "number": 43,
     "text": "都道府県の県の数",
     "answer": "43個"
   },

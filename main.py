@@ -42,9 +42,6 @@ async def controller(request: Request):
 @app.get("/draw")
 async def draw():
 
-    # 直前に出題したクイズの番号を履歴へ追加
-    # state.add_to_history(state.pending_number)
-
     # クイズ番号の確定が終わったのでリセット
     state.pending_number = None
 
@@ -98,6 +95,9 @@ async def quiz_with_id(quiz_id: int):
 
     # 回答を保存
     state.current_answer = quiz["answer"]
+    
+    # 解説を保存
+    state.current_explanation = quiz.get("explanation")
 
     # 画像を保存
     state.current_image = quiz.get("image")
@@ -107,11 +107,6 @@ async def quiz_with_id(quiz_id: int):
     
     # 出題時にカウントダウンスタート
     state.start_timer(10)
-
-
-    # クイズに対応する数字
-    # 次回draw時に履歴へ追加される
-    # state.pending_number = quiz["number"]
 
     return {
         "success": True,
@@ -159,6 +154,7 @@ async def get_state():
 
         # クイズの回答
         "answer": state.current_answer,
+        "explanation": state.current_explanation,
 
         # 回答表示フラグ
         "show_answer": state.show_answer,
