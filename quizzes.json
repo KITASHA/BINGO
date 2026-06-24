@@ -1,93 +1,109 @@
 [
-{
+  {
     "text": "猫は何匹",
     "answer": "3匹",
-    "explanation": "どうみても３匹",
+    "explanation": "どうみても３匹。",
     "image": "/static/images/cat.jpg"
   },
-
   {
     "text": "都道府県の県の数",
-    "answer": "43個"
+    "answer": "43個",
+    "explanation": "都・道・府を除いたら43。"
   },
   {
     "number": 32,
     "text": "人間の永久歯の本数",
-    "answer": "32本"
+    "answer": "32本",
+    "explanation": "親知らずまで全部そろうと32本。"
   },
   {
     "number": 9,
     "text": "オネストの今年の新入社員の数",
-    "answer": "9人"
+    "answer": "9人",
+    "explanation": "今年は9人！来年はもっと増えるかも？"
   },
   {
     "number": 7,
     "text": "ライト兄弟の兄弟の数",
-    "answer": "7人兄弟"
+    "answer": "7人兄弟",
+    "explanation": "実家は自転車屋"
   },
   {
     "number": 5,
     "text": "レモン1個に含まれるビタミンCはレモン〇個分",
-    "answer": "5個分"
+    "answer": "5個分",
+    "explanation": "レモン〇個分という表現は飲料メーカなどが使う果汁換算の基準。果汁に20mg、果肉も含めると普通に100㎎くらい"
   },
   {
     "number": 44,
     "text": "チュニジアのサッカーFIFAランク",
-    "answer": "44位"
+    "answer": "44位",
+    "explanation": "日本は18位"
   },
   {
     "number": 10,
     "text": "「12誘導」の心電図測定に使う電極の数",
-    "answer": "10個"
+    "answer": "10個",
+    "explanation": "よくわかる解説"
   },
   {
     "number": 42,
     "text": "千手観音の腕の本数",
-    "answer": "42本"
+    "answer": "42本",
+    "explanation": "普通の手が2本、あとの40本の手で1本につき25の世界を救う。"
   },
   {
     "number": 46,
     "text": "葛飾北斎の富嶽三十六景の枚数",
-    "answer": "46枚"
+    "answer": "46枚",
+    "explanation": "初版が36枚、追加で10枚。"
   },
   {
     "number": 19,
     "text": "徳川家広は徳川家第〇代当主",
-    "answer": "19代"
+    "answer": "19代",
+    "explanation": "現在の当主。X：@hiro_tokugawa"
   },
   {
     "number": 27,
     "text": "アナゴさんの年齢",
-    "answer": "27歳"
+    "answer": "27歳",
+    "explanation": "マスオさんは28歳"
   },
   {
     "number": 0,
     "text": "心電図心拍数クイズ",
-    "answer": ""
+    "answer": "",
+    "explanation": "よくわかる解説"
   },
   {
     "number": 53,
     "text": "東海道五十三次にある宿場の数",
-    "answer": "53か所"
+    "answer": "53か所",
+    "explanation": "名前の通り53。江戸〜京都の旅路の中継地点。"
   },
   {
     "number": 64,
     "text": "どこでもドアの公式価格",
-    "answer": "64万円（ドラえもん20万円、ドラミちゃん100万円）"
+    "answer": "64万円",
+    "explanation": "ドラえもん20万円、ドラミちゃん100万円"
   },
   {
     "number": 3,
     "text": "タコの心臓の数",
-    "answer": "3（イカも3つ）"
+    "answer": "3つ",
+    "explanation": "イカも3つ。"
   },
   {
     "number": 12,
     "text": "中谷君の誕生月",
-    "answer": "12月"
+    "answer": "12月",
+    "explanation": "周知の事実"
   },
   {
     "number": 60,
     "text": "初代ガンダム（RX-78-2）の全備重量",
-    "answer": "60.0トン（本体重量43.4トン / 全高18m）"
+    "answer": "60.0トン",
+    "explanation": "本体重量43.4トン / 全高18m"
   }
 ]
