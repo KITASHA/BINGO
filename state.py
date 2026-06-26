@@ -22,6 +22,7 @@ class BingoState:
         self.drawn_numbers = []
 
         self.current_image = None
+        self.current_image_a = None
 
         # タイマー終了時刻
         self.timer_end = None

@@ -166,6 +166,7 @@ async def get_state():
         "history": state.drawn_numbers,
 
         "image": state.current_image,
+        "image_a": state.current_image_a,
 
         "remaining": state.get_remaining()
     }
