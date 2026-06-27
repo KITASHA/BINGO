@@ -1,110 +1,160 @@
 [
   {
+    "number": 3,
+    "exclude": true,
     "text": "猫は何匹",
     "answer": "3匹",
     "explanation": "どうみても３匹。",
-    "image": "/static/images/cat.jpg",
+    "image_q": "/static/images/cat.jpg",
     "image_a": "/static/images/cat_2.jpg"
   },
   {
+    "number": 43,
+    "exclude": true,
     "text": "都道府県の県の数",
     "answer": "43個",
     "explanation": "都・道・府を除いたら43。"
   },
   {
     "number": 32,
+    "exclude": true,
     "text": "人間の永久歯の本数",
     "answer": "32本",
     "explanation": "親知らずまで全部そろうと32本。"
   },
   {
     "number": 9,
+    "exclude": true,
     "text": "オネストの今年の新入社員の数",
     "answer": "9人",
-    "explanation": "今年は9人！来年はもっと増えるかも？"
+    "explanation": "大阪には2人 今月オフィスで歓迎会をします！"
   },
   {
     "number": 7,
+    "exclude": true,
     "text": "ライト兄弟の兄弟の数",
     "answer": "7人兄弟",
     "explanation": "実家は自転車屋"
   },
   {
     "number": 5,
+    "exclude": true,
     "text": "レモン1個に含まれるビタミンCはレモン〇個分",
     "answer": "5個分",
     "explanation": "レモン〇個分という表現は飲料メーカなどが使う果汁換算の基準。果汁に20mg、果肉も含めると普通に100㎎くらい"
   },
   {
     "number": 44,
+    "exclude": true,
     "text": "チュニジアのサッカーFIFAランク",
     "answer": "44位",
     "explanation": "日本は18位"
   },
   {
     "number": 10,
+    "exclude": true,
     "text": "「12誘導」の心電図測定に使う電極の数",
     "answer": "10個",
     "explanation": "よくわかる解説"
   },
   {
     "number": 42,
+    "exclude": true,
     "text": "千手観音の腕の本数",
     "answer": "42本",
     "explanation": "普通の手が2本、あとの40本の手で1本につき25の世界を救う。"
   },
   {
     "number": 46,
+    "exclude": true,
     "text": "葛飾北斎の富嶽三十六景の枚数",
     "answer": "46枚",
     "explanation": "初版が36枚、追加で10枚。"
   },
   {
     "number": 19,
+    "exclude": true,
     "text": "徳川家広は徳川家第〇代当主",
     "answer": "19代",
     "explanation": "現在の当主。X：@hiro_tokugawa"
   },
   {
     "number": 27,
+    "exclude": true,
     "text": "アナゴさんの年齢",
     "answer": "27歳",
     "explanation": "マスオさんは28歳"
   },
   {
     "number": 0,
+    "exclude": false,
     "text": "心電図心拍数クイズ",
     "answer": "",
     "explanation": "よくわかる解説"
   },
   {
     "number": 53,
+    "exclude": false,
     "text": "東海道五十三次にある宿場の数",
     "answer": "53か所",
     "explanation": "名前の通り53。江戸〜京都の旅路の中継地点。"
   },
   {
     "number": 64,
+    "exclude": false,
     "text": "どこでもドアの公式価格",
     "answer": "64万円",
     "explanation": "ドラえもん20万円、ドラミちゃん100万円"
   },
   {
     "number": 3,
+    "exclude": false,
     "text": "タコの心臓の数",
     "answer": "3つ",
     "explanation": "イカも3つ。"
   },
   {
     "number": 12,
+    "exclude": false,
     "text": "中谷君の誕生月",
     "answer": "12月",
     "explanation": "周知の事実"
   },
   {
     "number": 60,
+    "exclude": false,
     "text": "初代ガンダム（RX-78-2）の全備重量",
     "answer": "60.0トン",
     "explanation": "本体重量43.4トン / 全高18m"
+  },
+  {
+    "text": "立方数",
+    "answer": "1,8,27,64",
+    "explanation": "ある整数を3乗した数"
+  },
+  {
+    "text": "7の倍数",
+    "answer": "7,14,21,28,35,42,49,56,63,70",
+    "explanation": "ラッキーセブン"
+  },
+  {
+    "text": "平方数",
+    "answer": "1,4,9,16,25,36,49,64",
+    "explanation": "ある整数を2乗した数"
+  },
+  {
+    "text": "11の倍数",
+    "answer": "11,22,33,44,55,66",
+    "explanation": "ゾロ目"
+  },
+  {
+    "text": "フィボナッチ数",
+    "answer": "1,2,3,5,8,13,21,34,55",
+    "explanation": "前の2つを足して作る数列"
+  },
+  {
+    "text": "13の倍数",
+    "answer": "13,26,39,52,65",
+    "explanation": "そろそろ全部あいた？"
   }
 ]

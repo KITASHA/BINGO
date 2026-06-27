@@ -45,6 +45,13 @@ async def draw():
     # クイズ番号の確定が終わったのでリセット
     state.pending_number = None
 
+    # 抽選除外番号
+    excluded_numbers = {
+        quiz["number"]
+        for quiz in quiz_list
+        if quiz.get("exclude") is True
+    }
+
     # 現在表示中が数字なら履歴へ追加
     if state.current_type == "number":
         state.add_to_history(state.current_number)
@@ -54,6 +61,7 @@ async def draw():
         n
         for n in range(1, 76)
         if n not in state.drawn_numbers
+        and n not in excluded_numbers
     ]
 
     # 全て抽選済みなら終了
@@ -67,7 +75,7 @@ async def draw():
     state.current_number = number
     state.current_item = number
     state.current_type = "number"
-    state.current_image = None
+    state.show_answer = False
 
     return {
         "success": True,
@@ -100,20 +108,22 @@ async def quiz_with_id(quiz_id: int):
     state.current_explanation = quiz.get("explanation")
 
     # 画像を保存
-    state.current_image = quiz.get("image")
+    state.current_image_q = quiz.get("image_q")
+    state.current_image_a = quiz.get("image_a")
 
     # 現在表示中はクイズ
     state.current_type = "quiz"
+    state.show_answer = False
     
     # 出題時にカウントダウンスタート
-    state.start_timer(10)
+    state.start_timer(11)
 
     return {
         "success": True,
         "type": "quiz",
         "message": quiz["text"],
         "answer": quiz["answer"],
-        "image": quiz.get("image")  
+        "image_q": quiz["image_q"]  
     }
 
 
@@ -165,8 +175,10 @@ async def get_state():
         # 抽選済み数字一覧
         "history": state.drawn_numbers,
 
-        "image": state.current_image,
+        #画像
+        "image_q": state.current_image_q,
         "image_a": state.current_image_a,
 
+        #
         "remaining": state.get_remaining()
     }

@@ -74,12 +74,20 @@
     class="fixed inset-0 bg-black/70 hidden items-center justify-center">
 
     <div class="bg-slate-900 p-10 rounded-3xl max-w-2xl">
+
         <div id="answer-text"
              class="text-4xl font-bold text-center">
         </div>
+
+        <img
+            id="answer-image"
+            class="hidden mx-auto mt-6 max-h-[400px] rounded-2xl"
+        />
+
         <div id="answer-explanation"
-            class="text-xl text-slate-300 mt-4 text-center">
+             class="text-xl text-slate-300 mt-4 text-center">
         </div>
+
     </div>
 
 </div>
@@ -154,14 +162,25 @@ async function refresh() {
 
         // 画像
         const img =
-             document.getElementById("quiz-image");
+            document.getElementById("quiz-image");
 
-        if (data.type === "quiz" && data.image) {
-            img.src = data.image;
+        if (data.type === "quiz" && data.image_q) {
+            img.src = data.image_q;
             img.classList.remove("hidden");
         } else {
             img.classList.add("hidden");
             img.src = "";
+        }
+
+        const answerImg =
+             document.getElementById("answer-image");
+
+        if (data.type === "quiz" && data.image_a) {
+            answerImg.src = data.image_a;
+            answerImg.classList.remove("hidden");
+        } else {
+            answerImg.src = "";
+            answerImg.classList.add("hidden");
         }
 
         // タイマー

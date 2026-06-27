@@ -21,7 +21,7 @@ class BingoState:
         # 履歴
         self.drawn_numbers = []
 
-        self.current_image = None
+        self.current_image_q = None
         self.current_image_a = None
 
         # タイマー終了時刻
