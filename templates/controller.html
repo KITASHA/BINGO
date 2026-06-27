@@ -46,7 +46,7 @@
 
                 <button
                     onclick="toggleAnswer()"
-                    class="bg-slate-600 hover:bg-slate-500 px-8 py-4 rounded-2xl text-xl font-bold"
+                    class="bg-emerald-600 hover:bg-emerald-500 px-8 py-4 rounded-2xl text-xl font-bold"
                 >
                     答え
                 </button>
@@ -109,11 +109,6 @@
                 "問題表示中";
         }
 
-        // 回答を表示
-        async function showAnswer() {
-            await fetch("/show-answer");
-        }
-
         // 回答表示のON/OFF切替
         async function toggleAnswer() {
             const stateRes =
@@ -126,7 +121,7 @@
                 await fetch("/hide-answer");
             } else {
                 await fetch("/show-answer");
-            }
+            }           
         }
 
         // 初期表示時にクイズ一覧を読み込む

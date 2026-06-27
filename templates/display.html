@@ -8,7 +8,11 @@
 
     <title>ビンゴ表示</title>
 
-    <script src="static/js/tailwind.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="/static/js/tailwind.js"></script>
+
+    <!-- フィーバー演出用CSS -->
+    <link rel="stylesheet" href="/static/css/fever.css">
 </head>
 
 <body class="bg-slate-950 text-white min-h-screen">
@@ -24,23 +28,29 @@
         <!-- 現在の抽選結果表示エリア -->
         <div class="bg-slate-900 rounded-3xl p-16 shadow-xl text-center">
 
-            <p class="text-slate-400 text-2xl mb-8">
+            <!-- 表示タイトル -->
+            <p
+                id="result-title"
+                class="text-slate-400 text-2xl mb-8"
+            >
                 抽選結果
             </p>
 
-            <!-- 最新の数字を表示 -->
+            <!-- 最新の数字または問題文 -->
             <div
                 id="current-number"
                 class="font-black break-words"
             >
                 -
             </div>
-            
+
+            <!-- クイズ用カウントダウン -->
             <p
                 id="timer"
                 class="text-4xl font-bold text-red-500 mt-6"
             ></p>
 
+            <!-- 問題画像 -->
             <img
                 id="quiz-image"
                 class="hidden mx-auto mt-8 max-h-[500px] rounded-2xl"
@@ -63,159 +73,182 @@
             </div>
 
         </div>
-        <button
-    id="open-answer"
-    class="fixed bottom-8 right-8 bg-amber-600 px-6 py-3 rounded-xl hidden">
-    答え
-</button>
 
-<div
-    id="answer-modal"
-    class="fixed inset-0 bg-black/70 hidden items-center justify-center">
+        <!-- 回答モーダル -->
+        <div
+            id="answer-modal"
+            class="fixed inset-0 bg-black/70 hidden items-center justify-center"
+        >
 
-    <div class="bg-slate-900 p-10 rounded-3xl max-w-2xl">
+            <div class="bg-slate-900 p-10 rounded-3xl max-w-2xl">
 
-        <div id="answer-text"
-             class="text-4xl font-bold text-center">
-        </div>
+                <!-- 回答テキスト -->
+                <div
+                    id="answer-text"
+                    class="text-4xl font-bold text-center"
+                >
+                </div>
 
-        <img
-            id="answer-image"
-            class="hidden mx-auto mt-6 max-h-[400px] rounded-2xl"
-        />
+                <!-- 回答画像 -->
+                <img
+                    id="answer-image"
+                    class="hidden mx-auto mt-6 max-h-[400px] rounded-2xl"
+                />
 
-        <div id="answer-explanation"
-             class="text-xl text-slate-300 mt-4 text-center">
+                <!-- 回答解説 -->
+                <div
+                    id="answer-explanation"
+                    class="text-xl text-slate-300 mt-4 text-center"
+                >
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-</div>
+    <script>
+        // サーバーから現在の状態を取得して画面に反映
+        async function refresh() {
 
-    </div>
+            try {
 
- <script>
-// サーバーから現在状態を取得して画面へ反映
-async function refresh() {
+                const response = await fetch("/state");
+                const data = await response.json();
 
-    try {
+                // 現在表示中の数字または問題文
+                const current =
+                    document.getElementById("current-number");
 
-        const response = await fetch("/state");
-        const data = await response.json();
+                current.textContent = data.current;
 
-        // 現在表示
-        const current =
-            document.getElementById("current-number");
+                // 回答テキスト
+                document.getElementById("answer-text").textContent =
+                    data.type === "quiz"
+                        ? (data.answer || "")
+                        : "";
 
-        current.textContent = data.current;
+                // 回答解説
+                document.getElementById("answer-explanation").textContent =
+                    data.type === "quiz"
+                        ? (data.explanation || "")
+                        : "";
 
-        // 回答
-        document.getElementById("answer-text").textContent =
-            data.type === "quiz"
-                ? (data.answer || "")
-                : "";
-            
-        document.getElementById("answer-explanation").textContent =
-            data.type === "quiz"
-                ? (data.explanation || "")
-                : "";
+                // 数字表示とクイズ表示で文字サイズを切り替え
+                if (data.type === "quiz") {
+                    current.className =
+                        "text-5xl md:text-7xl font-black break-words";
+                } else {
+                    current.className =
+                        "text-[12rem] md:text-[16rem] font-black leading-none";
+                }
 
-        // サイズ切替
-        if (data.type === "quiz") {
-            current.className =
-                "text-5xl md:text-7xl font-black break-words";
-        } else {
-            current.className =
-                "text-[12rem] md:text-[16rem] font-black leading-none";
-        }
+                // 抽選履歴
+                const historyDiv =
+                    document.getElementById("history");
 
-        // 履歴
-        const historyDiv =
-            document.getElementById("history");
+                historyDiv.innerHTML = "";
 
-        historyDiv.innerHTML = "";
+                for (const number of data.history.slice().reverse()) {
 
-        for (const num of data.history.slice().reverse()) {
+                    const item =
+                        document.createElement("div");
 
-            const item =
-                document.createElement("div");
+                    item.className =
+                        "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
 
-            item.className =
-                "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
+                    item.textContent = number;
 
-            item.textContent = num;
+                    historyDiv.appendChild(item);
+                }
 
-            historyDiv.appendChild(item);
-        }
+                // 回答モーダル表示切り替え
+                const modal =
+                    document.getElementById("answer-modal");
 
-        // 回答モーダル
-        const modal =
-            document.getElementById("answer-modal");
+                if (data.show_answer) {
+                    modal.classList.remove("hidden");
+                    modal.classList.add("flex");
+                } else {
+                    modal.classList.remove("flex");
+                    modal.classList.add("hidden");
+                }
 
-        if (data.show_answer) {
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-        } else {
-            modal.classList.remove("flex");
-            modal.classList.add("hidden");
-        }
+                // 問題画像
+                const quizImage =
+                    document.getElementById("quiz-image");
 
-        // 画像
-        const img =
-            document.getElementById("quiz-image");
+                if (data.type === "quiz" && data.image_q) {
+                    quizImage.src = data.image_q;
+                    quizImage.classList.remove("hidden");
+                } else {
+                    quizImage.src = "";
+                    quizImage.classList.add("hidden");
+                }
 
-        if (data.type === "quiz" && data.image_q) {
-            img.src = data.image_q;
-            img.classList.remove("hidden");
-        } else {
-            img.classList.add("hidden");
-            img.src = "";
-        }
+                // 回答画像
+                const answerImage =
+                    document.getElementById("answer-image");
 
-        const answerImg =
-             document.getElementById("answer-image");
+                if (data.type === "quiz" && data.image_a) {
+                    answerImage.src = data.image_a;
+                    answerImage.classList.remove("hidden");
+                } else {
+                    answerImage.src = "";
+                    answerImage.classList.add("hidden");
+                }
 
-        if (data.type === "quiz" && data.image_a) {
-            answerImg.src = data.image_a;
-            answerImg.classList.remove("hidden");
-        } else {
-            answerImg.src = "";
-            answerImg.classList.add("hidden");
-        }
+                // カウントダウン表示
+                const timerEl =
+                    document.getElementById("timer");
 
-        // タイマー
-        const timerEl =
-            document.getElementById("timer");
+                if (
+                    data.type === "quiz" &&
+                    data.remaining !== null &&
+                    !data.fever
+                ) {
+                    timerEl.textContent =
+                        `残り ${data.remaining} 秒`;
 
-        if (data.type === "quiz" && data.remaining !== null) {
+                    if (data.remaining <= 3) {
+                        timerEl.classList.add("text-red-600");
+                        timerEl.classList.remove("text-red-500");
+                    } else {
+                        timerEl.classList.add("text-red-500");
+                        timerEl.classList.remove("text-red-600");
+                    }
+                } else {
+                    timerEl.textContent = "";
+                }
 
-            timerEl.textContent =
-                `残り ${data.remaining} 秒`;
+                // フィーバー表示
+                const title =
+                    document.getElementById("result-title");
 
-            if (data.remaining <= 3) {
-                timerEl.classList.add("text-red-600");
-                timerEl.classList.remove("text-red-500");
-            } else {
-                timerEl.classList.add("text-red-500");
-                timerEl.classList.remove("text-red-600");
+                if (data.fever) {
+                    title.textContent =
+                        "✨ フィーバータイム！！ ✨";
+
+                    title.classList.add("fever-mode");
+                } else {
+                    title.textContent =
+                        "抽選結果";
+
+                    title.classList.remove("fever-mode");
+                }
+
+            } catch (error) {
+                console.error(error);
             }
-
-        } else {
-
-            timerEl.textContent = "";
         }
 
-    } catch (error) {
-        console.error(error);
-    }
-}
+        // 定期更新
+        setInterval(refresh, 500);
 
-// 定期更新
-setInterval(refresh, 500);
-
-// 初回
-refresh();
-</script>
+        // 初回表示
+        refresh();
+    </script>
 
 </body>
 </html>

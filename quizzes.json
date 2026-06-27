@@ -130,31 +130,37 @@
   {
     "text": "立方数",
     "answer": "1,8,27,64",
-    "explanation": "ある整数を3乗した数"
+    "explanation": "ある整数を3乗した数",
+    "fever": true
   },
   {
     "text": "7の倍数",
     "answer": "7,14,21,28,35,42,49,56,63,70",
-    "explanation": "ラッキーセブン"
+    "explanation": "ラッキーセブン",
+    "fever": true
   },
   {
     "text": "平方数",
     "answer": "1,4,9,16,25,36,49,64",
-    "explanation": "ある整数を2乗した数"
+    "explanation": "ある整数を2乗した数",
+    "fever": true
   },
   {
     "text": "11の倍数",
     "answer": "11,22,33,44,55,66",
-    "explanation": "ゾロ目"
+    "explanation": "ゾロ目",
+    "fever": true
   },
   {
     "text": "フィボナッチ数",
     "answer": "1,2,3,5,8,13,21,34,55",
-    "explanation": "前の2つを足して作る数列"
+    "explanation": "前の2つを足して作る数列",
+    "fever": true
   },
   {
     "text": "13の倍数",
     "answer": "13,26,39,52,65",
-    "explanation": "そろそろ全部あいた？"
+    "explanation": "そろそろ全部あいた？",
+    "fever": true
   }
 ]

@@ -1,0 +1,23 @@
+@keyframes feverGlow {
+    0% {
+        color: #fbbf24;
+        text-shadow: 0 0 10px #fbbf24;
+    }
+
+    50% {
+        color: #ffffff;
+        text-shadow:
+            0 0 20px #ffffff,
+            0 0 40px #fbbf24;
+    }
+
+    100% {
+        color: #fbbf24;
+        text-shadow: 0 0 10px #fbbf24;
+    }
+}
+
+.fever-mode {
+    animation: feverGlow 0.7s infinite;
+    font-weight: 900;
+}

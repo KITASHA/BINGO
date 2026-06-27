@@ -10,11 +10,13 @@ from state import state
 # quizzes.jsonから読み込まれたクイズ一覧
 from quiz_service import quiz_list
 
+
 app = FastAPI()
 
 # templatesフォルダ内のHTMLを利用する設定
 templates = Jinja2Templates(directory="templates")
 
+# staticフォルダ公開
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -42,9 +44,6 @@ async def controller(request: Request):
 @app.get("/draw")
 async def draw():
 
-    # クイズ番号の確定が終わったのでリセット
-    state.pending_number = None
-
     # 抽選除外番号
     excluded_numbers = {
         quiz["number"]
@@ -56,26 +55,31 @@ async def draw():
     if state.current_type == "number":
         state.add_to_history(state.current_number)
 
-    # 未抽選の数字一覧を作成
-    available = [
-        n
-        for n in range(1, 76)
-        if n not in state.drawn_numbers
-        and n not in excluded_numbers
+    # 未抽選の数字一覧
+    available_numbers = [
+        number
+        for number in range(1, 76)
+        if number not in state.drawn_numbers
+        and number not in excluded_numbers
     ]
 
     # 全て抽選済みなら終了
-    if not available:
+    if not available_numbers:
         return {"success": False}
 
     # ランダムに1つ選ぶ
-    number = random.choice(available)
+    number = random.choice(available_numbers)
 
     # 現在表示中の数字として保存
     state.current_number = number
     state.current_item = number
     state.current_type = "number"
+
+    # 回答表示をリセット
     state.show_answer = False
+
+    # フィーバー解除
+    state.fever = False
 
     return {
         "success": True,
@@ -98,24 +102,31 @@ async def quiz_with_id(quiz_id: int):
     # 対象クイズ取得
     quiz = quiz_list[quiz_id]
 
-    # 問題文を表示
+    # 問題文
     state.current_item = quiz["text"]
 
-    # 回答を保存
+    # 回答
     state.current_answer = quiz["answer"]
-    
-    # 解説を保存
+
+    # 解説
     state.current_explanation = quiz.get("explanation")
 
-    # 画像を保存
+    # 問題画像
     state.current_image_q = quiz.get("image_q")
+
+    # 回答画像
     state.current_image_a = quiz.get("image_a")
 
-    # 現在表示中はクイズ
+    # 表示モード
     state.current_type = "quiz"
+
+    # 回答非表示
     state.show_answer = False
-    
-    # 出題時にカウントダウンスタート
+
+    # フィーバー設定
+    state.fever = quiz.get("fever", False)
+
+    # 出題時にカウントダウン開始
     state.start_timer(11)
 
     return {
@@ -123,7 +134,7 @@ async def quiz_with_id(quiz_id: int):
         "type": "quiz",
         "message": quiz["text"],
         "answer": quiz["answer"],
-        "image_q": quiz["image_q"]  
+        "image_q": quiz.get("image_q")
     }
 
 
@@ -159,11 +170,14 @@ async def hide_answer_api():
 async def get_state():
 
     return {
+
         # 現在表示中の内容（数字または問題文）
         "current": state.current_item,
 
         # クイズの回答
         "answer": state.current_answer,
+
+        # クイズの解説
         "explanation": state.current_explanation,
 
         # 回答表示フラグ
@@ -175,10 +189,15 @@ async def get_state():
         # 抽選済み数字一覧
         "history": state.drawn_numbers,
 
-        #画像
+        # 問題画像
         "image_q": state.current_image_q,
+
+        # 回答画像
         "image_a": state.current_image_a,
 
-        #
+        # フィーバータイム
+        "fever": state.fever,
+
+        # クイズ残り時間
         "remaining": state.get_remaining()
     }
