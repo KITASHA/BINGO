@@ -72,6 +72,7 @@
 
         // クイズ一覧を取得してセレクトボックスへ設定
         async function loadQuizList() {
+
             const res = await fetch("/quiz-list");
             const data = await res.json();
 
@@ -81,16 +82,20 @@
             select.innerHTML = "";
 
             data.quizzes.forEach((quiz, index) => {
+
                 const option =
                     document.createElement("option");
 
                 option.value = index;
-                option.textContent = quiz.text;
+
+                option.textContent =
+                    quiz.number
+                        ? `${quiz.number}：${quiz.text}`
+                        : quiz.text;
 
                 select.appendChild(option);
             });
         }
-
         // 選択中のクイズを表示
         async function showQuiz() {
             const quizId = parseInt(
