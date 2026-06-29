@@ -159,17 +159,17 @@
     count++;
 
     // ドンの少し前に音を先出し
-    if (count === 16) {
+    if (count === 1) {
 
         const sound =
             document.getElementById("bingo-sound");
 
         sound.currentTime = 0;
-        sound.playbackRate = 2.0;
+        sound.playbackRate = 2.5;
         sound.play();
     }
 
-    if (count >= 20) {
+    if (count >= 15) {
 
         clearInterval(roulette);
 
