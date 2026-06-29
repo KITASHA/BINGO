@@ -15,3 +15,12 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# PyInstaller
+dist/
+build/
+*.spec
+
+# Python
+__pycache__/
+*.pyc

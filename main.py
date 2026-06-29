@@ -8,6 +8,17 @@ import random
 import time
 import subprocess
 
+import os
+import sys
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
 # アプリの状態を管理するオブジェクト
 from state import state
 
@@ -18,8 +29,13 @@ from quiz_service import quiz_list
 app = FastAPI()
 
 # ✅ 先に定義
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory=resource_path("templates"))
+
+app.mount(
+    "/static",
+    StaticFiles(directory=resource_path("static")),
+    name="static"
+)
 
 
 # ✅ ブラウザ起動
@@ -216,4 +232,4 @@ async def get_state():
 # ✅ 起動処理
 if __name__ == "__main__":
     threading.Thread(target=open_browser).start()
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)
