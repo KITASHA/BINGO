@@ -1,8 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-
+import threading
+import webbrowser
+import uvicorn
 import random
+import time
+import subprocess
 
 # アプリの状態を管理するオブジェクト
 from state import state
@@ -13,30 +17,36 @@ from quiz_service import quiz_list
 
 app = FastAPI()
 
-# templatesフォルダ内のHTMLを利用する設定
+# ✅ 先に定義
 templates = Jinja2Templates(directory="templates")
-
-# staticフォルダ公開
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# 表示用画面
+# ✅ ブラウザ起動
+def open_browser():
+    import time
+    time.sleep(2)
+
+    subprocess.Popen(["start", "msedge", "--new-window", "http://127.0.0.1:8000/display"], shell=True)
+    time.sleep(1)
+    subprocess.Popen(["start", "msedge", "--new-window", "http://127.0.0.1:8000/controller"], shell=True)
+
+
+# ✅ 表示画面
 @app.get("/display")
 async def display(request: Request):
-
     return templates.TemplateResponse(
-        request=request,
-        name="display.html"
+        name="display.html",
+        request=request
     )
 
 
-# 操作用画面
+# ✅ 操作画面
 @app.get("/controller")
 async def controller(request: Request):
-
     return templates.TemplateResponse(
-        request=request,
-        name="controller.html"
+        name="controller.html",
+        request=request
     )
 
 
@@ -201,3 +211,9 @@ async def get_state():
         # クイズ残り時間
         "remaining": state.get_remaining()
     }
+
+
+# ✅ 起動処理
+if __name__ == "__main__":
+    threading.Thread(target=open_browser).start()
+    uvicorn.run(app, host="127.0.0.1", port=8000)
