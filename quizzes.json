@@ -55,6 +55,7 @@
     "exclude": true,
     "text": "「12誘導」の心電図測定に使う電極の数",
     "answer": "10個",
+    "image_a": "/static/images/電極.png",
     "explanation": "よくわかる解説"
   },
   {
@@ -68,8 +69,9 @@
     "number": 46,
     "exclude": true,
     "text": "葛飾北斎の富嶽三十六景の枚数",
+    "image_q": "/static/images/富嶽.jpg",
     "answer": "46枚",
-    "explanation": "初版が36枚、追加で10枚。"
+    "explanation": "初版が36枚、よく売れたので追加で10枚。"
   },
   {
     "number": 19,
