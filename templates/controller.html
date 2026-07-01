@@ -53,88 +53,9 @@
             </div>
         </div>
         <p class="text-white text-lg mb-6">
-    ※音を出すため、最初にdisplay側の画面上のどこかを一度クリックしてください
-</p>
-
+        ※音を出すため、最初にdisplay側の画面上のどこかを一度クリックしてください
+        </p>
     </div>
-
-    <script>
-        // 数字を抽選
-        async function drawNumber() {
-            const res = await fetch("/draw");
-            const data = await res.json();
-
-            // 全て抽選済み
-            if (!data.success) {
-                alert("すべて抽選済みです");
-                return;
-            }
-
-            document.getElementById("result").textContent =
-                data.number;
-        }
-
-        // クイズ一覧を取得してセレクトボックスへ設定
-        async function loadQuizList() {
-
-            const res = await fetch("/quiz-list");
-            const data = await res.json();
-
-            const select =
-                document.getElementById("quiz-select");
-
-            select.innerHTML = "";
-
-            data.quizzes.forEach((quiz, index) => {
-
-                const option =
-                    document.createElement("option");
-
-                option.value = index;
-
-                option.textContent =
-                    quiz.number
-                        ? `${quiz.number}：${quiz.text}`
-                        : quiz.text;
-
-                select.appendChild(option);
-            });
-        }
-        // 選択中のクイズを表示
-        async function showQuiz() {
-            const quizId = parseInt(
-                document.getElementById("quiz-select").value
-            );
-
-            const res =
-                await fetch(`/quiz/${quizId}`);
-
-            const data =
-                await res.json();
-
-            console.log(data);
-
-            document.getElementById("result").textContent =
-                "問題表示中";
-        }
-
-        // 回答表示のON/OFF切替
-        async function toggleAnswer() {
-            const stateRes =
-                await fetch("/state");
-
-            const state =
-                await stateRes.json();
-
-            if (state.show_answer) {
-                await fetch("/hide-answer");
-            } else {
-                await fetch("/show-answer");
-            }           
-        }
-
-        // 初期表示時にクイズ一覧を読み込む
-        loadQuizList();
-    </script>
+<script src="/static/js/controller.js"></script>
 </body>
 </html>
