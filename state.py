@@ -5,7 +5,7 @@ class BingoState:
 
     def __init__(self):
 
-        # 現在表示中の内容
+        # 表示中の内容
         self.current_item = "-"
         self.current_type = "number"
 
@@ -13,7 +13,7 @@ class BingoState:
         self.current_number = None
         self.drawn_numbers = []
 
-        # クイズ回答
+        # クイズ情報
         self.show_answer = False
         self.current_answer = ""
         self.current_explanation = None
@@ -22,36 +22,44 @@ class BingoState:
         self.current_image_q = None
         self.current_image_a = None
 
-        # カウントダウン終了時刻
+        # タイマー終了時刻
         self.timer_end = None
 
         # フィーバータイム
         self.fever = False
 
-    # 抽選履歴へ追加
     def add_to_history(self, number):
+        """抽選履歴へ追加"""
 
-        if (
-            number is not None and
-            number not in self.drawn_numbers
-        ):
-            self.drawn_numbers.append(number)
+        if number is None:
+            return
 
-    # タイマー開始
-    def start_timer(self, seconds: int):
+        if number in self.drawn_numbers:
+            return
+
+        self.drawn_numbers.append(number)
+
+    def start_timer(self, seconds):
+        """タイマー開始"""
 
         self.timer_end = time.time() + seconds
 
-    # 残り秒数取得
+    def stop_timer(self):
+        """タイマー停止"""
+
+        self.timer_end = None
+
     def get_remaining(self):
+        """残り秒数取得"""
 
         if self.timer_end is None:
             return None
 
-        return max(
-            0,
-            int(self.timer_end - time.time())
+        remaining = int(
+            self.timer_end - time.time()
         )
+
+        return max(0, remaining)
 
 
 state = BingoState()
