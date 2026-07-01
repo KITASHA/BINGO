@@ -18,11 +18,32 @@
 
 <body class="bg-slate-950 text-white min-h-screen">
 
+    <!-- 効果音 -->
     <audio
-        id="bingo-sound"
-        src="/static/sound/SE114.mp3"
+        id="drumroll-sound"
+        src="/static/sound/ドラムロール.mp3"
+        preload="auto"
+        loop>
+    </audio>
+
+    <audio
+        id="cymbal-sound"
+        src="/static/sound/クラッシュシンバル.mp3"
         preload="auto">
     </audio>
+
+    <audio
+        id="question-sound"
+        src="/static/sound/出題.mp3"
+        preload="auto">
+    </audio>
+
+    <audio
+        id="timer-sound"
+        src="/static/sound/タイマー.mp3"
+        preload="auto">
+    </audio>
+
     <!-- 全体コンテナ -->
     <div class="max-w-7xl mx-auto px-6 py-12">
 
@@ -117,20 +138,17 @@
     <script>
     let lastValue = null;
     let isAnimating = false;
+    let lastShowAnswer = false;
 
-    // サーバーから現在の状態を取得して画面に反映
     async function refresh() {
-
         try {
-
             const response = await fetch("/state");
             const data = await response.json();
 
-            // 現在表示中の数字または問題文
-            const current =
-                document.getElementById("current-number");
+            const current = document.getElementById("current-number");
+            const timerEl = document.getElementById("timer");
+            const quizImage = document.getElementById("quiz-image");
 
-            // 数字表示とクイズ表示で文字サイズを切り替え
             if (data.type === "quiz") {
                 current.className =
                     "text-5xl md:text-7xl font-black break-words transition-transform duration-300";
@@ -139,95 +157,102 @@
                     "text-[12rem] md:text-[16rem] font-black leading-none transition-transform duration-300";
             }
 
-            // 数字抽選中のルーレット演出
-            if (
-                data.type === "number" &&
-                data.current !== lastValue &&
-                !isAnimating
-            ) {
-
+            if (data.current !== lastValue && !isAnimating) {
                 isAnimating = true;
                 lastValue = data.current;
 
+                timerEl.textContent = "";
+                quizImage.src = "";
+                quizImage.classList.add("hidden");
+
                 let count = 0;
 
+                const drumrollSound =
+                    document.getElementById("drumroll-sound");
+
+                drumrollSound.currentTime = 0;
+                drumrollSound.play();
+
                 const roulette = setInterval(() => {
+                    current.textContent =
+                        Math.floor(Math.random() * 75) + 1;
 
-    current.textContent =
-        Math.floor(Math.random() * 75) + 1;
+                    count++;
 
-    count++;
+                    if (count >= 20) {
+                        clearInterval(roulette);
 
-    // ドンの少し前に音を先出し
-    if (count === 1) {
+                        drumrollSound.pause();
+                        drumrollSound.currentTime = 0;
 
-        const sound =
-            document.getElementById("bingo-sound");
+                        current.textContent = data.current;
 
-        sound.currentTime = 0;
-        sound.playbackRate = 2.5;
-        sound.play();
-    }
+                        if (data.type === "number") {
+                            const cymbalSound =
+                                document.getElementById("cymbal-sound");
 
-    if (count >= 15) {
+                            cymbalSound.currentTime = 0;
+                            cymbalSound.play();
+                        }
 
-        clearInterval(roulette);
+                        if (data.type === "quiz") {
+                            const questionSound =
+                                document.getElementById("question-sound");
 
-        current.textContent =
-            data.current;
+                            questionSound.currentTime = 0;
+                            questionSound.play();
 
-        // ドン演出
-        current.classList.add("scale-125");
+                            if (!data.fever) {
 
-        setTimeout(() => {
-            current.classList.remove("scale-125");
+                                const timerSound =
+                                    document.getElementById("timer-sound");
 
-            isAnimating = false;
-        }, 300);
-    }
+                                timerSound.currentTime = 0;
+                                timerSound.play();
+                            }
 
-}, 50);
+                            if (data.image_q) {
+                                quizImage.src = data.image_q;
+                                quizImage.classList.remove("hidden");
+                            }
+                        }
 
-            } else if (data.type === "quiz") {
+                        current.classList.add("scale-125");
 
-                current.textContent = data.current;
-                lastValue = data.current;
+                        setTimeout(() => {
+                            current.classList.remove("scale-125");
+                            isAnimating = false;
+                        }, 300);
+                    }
+                }, 50);
+
+                return;
             }
 
-            // 回答テキスト
+            if (!isAnimating) {
+                current.textContent = data.current;
+            }
+
             document.getElementById("answer-text").textContent =
-                data.type === "quiz"
-                    ? (data.answer || "")
-                    : "";
+                data.type === "quiz" ? (data.answer || "") : "";
 
-            // 回答解説
             document.getElementById("answer-explanation").textContent =
-                data.type === "quiz"
-                    ? (data.explanation || "")
-                    : "";
+                data.type === "quiz" ? (data.explanation || "") : "";
 
-            // 抽選履歴
-            const historyDiv =
-                document.getElementById("history");
-
+            const historyDiv = document.getElementById("history");
             historyDiv.innerHTML = "";
 
             for (const number of data.history.slice().reverse()) {
-
-                const item =
-                    document.createElement("div");
+                const item = document.createElement("div");
 
                 item.className =
                     "bg-slate-800 px-4 py-2 rounded-xl text-xl font-bold";
 
                 item.textContent = number;
-
                 historyDiv.appendChild(item);
             }
 
-            // 回答モーダル表示切り替え
-            const modal =
-                document.getElementById("answer-modal");
+            const modal = document.getElementById("answer-modal");
 
             if (data.show_answer) {
                 modal.classList.remove("hidden");
@@ -236,22 +261,33 @@
                 modal.classList.remove("flex");
                 modal.classList.add("hidden");
             }
+            if (
+                    data.show_answer &&
+                    !lastShowAnswer
+                ) {
 
-            // 問題画像
-            const quizImage =
-                document.getElementById("quiz-image");
+                    const cymbalSound =
+                        document.getElementById("cymbal-sound");
 
-            if (data.type === "quiz" && data.image_q) {
+                    cymbalSound.currentTime = 0;
+                    cymbalSound.play();
+                }
+
+                lastShowAnswer = data.show_answer;
+
+            if (
+                data.type === "quiz" &&
+                data.image_q &&
+                !isAnimating
+            ) {
                 quizImage.src = data.image_q;
                 quizImage.classList.remove("hidden");
-            } else {
+            } else if (data.type !== "quiz") {
                 quizImage.src = "";
                 quizImage.classList.add("hidden");
             }
 
-            // 回答画像
-            const answerImage =
-                document.getElementById("answer-image");
+            const answerImage = document.getElementById("answer-image");
 
             if (data.type === "quiz" && data.image_a) {
                 answerImage.src = data.image_a;
@@ -261,17 +297,16 @@
                 answerImage.classList.add("hidden");
             }
 
-            // カウントダウン表示
-            const timerEl =
-                document.getElementById("timer");
+            const timerSound =
+                document.getElementById("timer-sound");
 
             if (
                 data.type === "quiz" &&
                 data.remaining !== null &&
-                !data.fever
+                !data.fever &&
+                !isAnimating
             ) {
-                timerEl.textContent =
-                    `残り ${data.remaining} 秒`;
+                timerEl.textContent = `残り ${data.remaining} 秒`;
 
                 if (data.remaining <= 3) {
                     timerEl.classList.add("text-red-600");
@@ -284,19 +319,13 @@
                 timerEl.textContent = "";
             }
 
-            // フィーバー表示
-            const title =
-                document.getElementById("result-title");
+            const title = document.getElementById("result-title");
 
             if (data.fever) {
-                title.textContent =
-                    "✨ フィーバータイム！！ ✨";
-
+                title.textContent = "✨ フィーバータイム！！ ✨";
                 title.classList.add("fever-mode");
             } else {
-                title.textContent =
-                    "抽選結果";
-
+                title.textContent = "抽選結果";
                 title.classList.remove("fever-mode");
             }
 
@@ -305,10 +334,7 @@
         }
     }
 
-    // 定期更新
     setInterval(refresh, 500);
-
-    // 初回表示
     refresh();
 </script>
 </body>

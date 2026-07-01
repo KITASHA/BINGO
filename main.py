@@ -38,7 +38,7 @@ app.mount(
 )
 
 
-# ✅ ブラウザ起動
+# ブラウザ起動
 def open_browser():
     import time
     time.sleep(2)
@@ -48,7 +48,7 @@ def open_browser():
     subprocess.Popen(["start", "msedge", "--new-window", "http://127.0.0.1:8000/controller"], shell=True)
 
 
-# ✅ 表示画面
+# 表示画面
 @app.get("/display")
 async def display(request: Request):
     return templates.TemplateResponse(
@@ -57,7 +57,7 @@ async def display(request: Request):
     )
 
 
-# ✅ 操作画面
+# 操作画面
 @app.get("/controller")
 async def controller(request: Request):
     return templates.TemplateResponse(
@@ -153,7 +153,7 @@ async def quiz_with_id(quiz_id: int):
     state.fever = quiz.get("fever", False)
 
     # 出題時にカウントダウン開始
-    state.start_timer(11)
+    state.start_timer(12)
 
     return {
         "success": True,
@@ -229,7 +229,7 @@ async def get_state():
     }
 
 
-# ✅ 起動処理
+# 起動処理
 if __name__ == "__main__":
     threading.Thread(target=open_browser).start()
     uvicorn.run(app, host="127.0.0.1", port=8000, log_config=None)
