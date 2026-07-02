@@ -23,8 +23,8 @@ async function refresh() {
         const title =
             document.getElementById("result-title");
 
-        // クイズ中はタイトル非表示
-        if (data.type === "quiz") {
+        // クイズ中はタイトル非表示（ただしフィーバー時は表示）
+        if (data.type === "quiz" && !data.fever) {
             title.classList.add("hidden");
         } else {
             title.classList.remove("hidden");
@@ -86,6 +86,17 @@ async function refresh() {
 
                     // 確定した数字または問題文を表示
                     current.textContent = data.current;
+                    
+                    // フィーバー表示切替
+                    if (data.fever) {
+                        title.classList.remove("hidden");
+                        title.textContent = "✨ フィーバータイム！！ ✨";
+                        title.classList.add("fever-mode");
+                    } else {
+                        title.textContent = "抽選結果";
+                        title.classList.remove("fever-mode");
+                    }
+
 
                     // 数字抽選時はシンバル
                     if (data.type === "number") {
@@ -249,18 +260,7 @@ async function refresh() {
             timerEl.textContent = "";
         }
 
-        // フィーバー表示
-        if (data.fever) {
-            title.textContent =
-                "✨ フィーバータイム！！ ✨";
-
-            title.classList.add("fever-mode");
-        } else {
-            title.textContent =
-                "抽選結果";
-
-            title.classList.remove("fever-mode");
-        }
+        
 
     } catch (error) {
         console.error(error);
