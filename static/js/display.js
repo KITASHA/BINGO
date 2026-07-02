@@ -20,13 +20,27 @@ async function refresh() {
         const quizImage =
             document.getElementById("quiz-image");
 
-        // 数字表示とクイズ表示で文字サイズを切り替える
+        const title =
+            document.getElementById("result-title");
+
+        // クイズ中はタイトル非表示
         if (data.type === "quiz") {
-            current.className =
-                "text-5xl md:text-7xl font-black break-words transition-transform duration-300";
+            title.classList.add("hidden");
         } else {
-            current.className =
-                "text-[12rem] md:text-[16rem] font-black leading-none transition-transform duration-300";
+            title.classList.remove("hidden");
+        }
+
+        // 通常表示時の文字サイズ
+        if (!isAnimating) {
+
+            if (data.type === "quiz") {
+                current.className =
+                    "text-5xl md:text-7xl font-black break-words transition-transform duration-300";
+            } else {
+                current.className =
+                    "text-[12rem] md:text-[16rem] font-black leading-none transition-transform duration-300";
+            }
+
         }
 
         // 表示内容が変わったときだけルーレット演出を開始する
@@ -37,7 +51,9 @@ async function refresh() {
             isAnimating = true;
             lastValue = data.current;
 
-            // ルーレット中はタイマーと問題画像を非表示
+            // ルーレット中は常に大きい文字
+            current.className =
+                "text-[12rem] md:text-[16rem] font-black leading-none transition-transform duration-300";
             timerEl.textContent = "";
             quizImage.src = "";
             quizImage.classList.add("hidden");
@@ -73,6 +89,7 @@ async function refresh() {
 
                     // 数字抽選時はシンバル
                     if (data.type === "number") {
+
                         const cymbalSound =
                             document.getElementById("cymbal-sound");
 
@@ -82,6 +99,11 @@ async function refresh() {
 
                     // クイズ出題時は出題音とタイマー音
                     if (data.type === "quiz") {
+                        
+                        current.className =
+                                "text-5xl md:text-7xl font-black break-words transition-transform duration-300";
+
+
                         const questionSound =
                             document.getElementById("question-sound");
 
@@ -90,6 +112,7 @@ async function refresh() {
 
                         // フィーバータイムではタイマー音を鳴らさない
                         if (!data.fever) {
+
                             const timerSound =
                                 document.getElementById("timer-sound");
 
@@ -227,9 +250,6 @@ async function refresh() {
         }
 
         // フィーバー表示
-        const title =
-            document.getElementById("result-title");
-
         if (data.fever) {
             title.textContent =
                 "✨ フィーバータイム！！ ✨";
