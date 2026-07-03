@@ -158,10 +158,27 @@ async function refresh() {
         }
 
         // 回答テキスト
-        document.getElementById("answer-text").textContent =
-            data.type === "quiz"
-                ? (data.answer || "")
-                : "";
+const answerText =
+    document.getElementById("answer-text");
+
+answerText.textContent =
+    data.type === "quiz"
+        ? (data.answer || "")
+        : "";
+
+const len =
+    answerText.textContent.length;
+
+if (len > 40) {
+    answerText.className =
+        "text-3xl md:text-5xl font-bold text-center break-words whitespace-normal leading-tight px-4";
+} else if (len > 20) {
+    answerText.className =
+        "text-4xl md:text-6xl font-bold text-center break-words whitespace-normal leading-tight px-4";
+} else {
+    answerText.className =
+        "text-6xl md:text-8xl font-bold text-center break-words whitespace-normal leading-tight px-4";
+}
 
         // 回答解説
         document.getElementById("answer-explanation").textContent =

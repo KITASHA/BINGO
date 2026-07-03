@@ -1,26 +1,17 @@
 [
   {
-    "number": 3,
-    "exclude": true,
-    "text": "猫は何匹",
-    "answer": "3匹",
-    "explanation": "どうみても３匹。",
-    "image_q": "/static/images/cat.jpg",
-    "image_a": "/static/images/cat_2.jpg"
-  },
-  {
     "number": 43,
     "exclude": true,
     "text": "都道府県の県の数",
     "answer": "43個",
-    "explanation": "都・道・府を除いたら43。"
+    "explanation": "都・道・府を除いたら43"
   },
   {
     "number": 32,
     "exclude": true,
     "text": "人間の永久歯の本数",
     "answer": "32本",
-    "explanation": "親知らずまで全部そろうと32本。"
+    "explanation": "親知らずまで全部そろうと32本"
   },
   {
     "number": 9,
@@ -33,7 +24,7 @@
     "number": 7,
     "exclude": true,
     "text": "ライト兄弟の兄弟の数",
-    "answer": "7人兄弟",
+    "answer": "7人",
     "explanation": "実家は自転車屋"
   },
   {
@@ -41,7 +32,7 @@
     "exclude": true,
     "text": "レモン1個に含まれるビタミンCはレモン〇個分",
     "answer": "5個分",
-    "explanation": "レモン〇個分という表現は飲料メーカなどが使う果汁換算の基準。果汁に20mg、果肉も含めると普通に100㎎くらい"
+    "explanation": "レモン〇個分という表現は飲料メーカなどが使う果汁換算の基準  果汁に20mg、果肉も含めると普通に100㎎くらい"
   },
   {
     "number": 44,
@@ -63,7 +54,7 @@
     "exclude": true,
     "text": "千手観音の腕の本数",
     "answer": "42本",
-    "explanation": "普通の手が2本、あとの40本の手で1本につき25の世界を救う。"
+    "explanation": "普通の手が2本、あとの40本の手で1本につき25の世界を救う"
   },
   {
     "number": 46,
@@ -71,14 +62,14 @@
     "text": "葛飾北斎の富嶽三十六景の枚数",
     "image_q": "/static/images/富嶽.jpg",
     "answer": "46枚",
-    "explanation": "初版が36枚、よく売れたので追加で10枚。"
+    "explanation": "初版が36枚、よく売れたので追加で10枚"
   },
   {
     "number": 19,
     "exclude": true,
     "text": "徳川家広は徳川家第〇代当主",
     "answer": "19代",
-    "explanation": "現在の当主。X：@hiro_tokugawa"
+    "explanation": "現在の当主 X：@hiro_tokugawa"
   },
   {
     "number": 27,
@@ -88,18 +79,11 @@
     "explanation": "マスオさんは28歳"
   },
   {
-    "number": 0,
-    "exclude": false,
-    "text": "心電図心拍数クイズ",
-    "answer": "",
-    "explanation": "よくわかる解説"
-  },
-  {
     "number": 53,
     "exclude": false,
     "text": "東海道五十三次の宿場の数（日本橋・三条大橋除く）",
     "answer": "53か所",
-    "explanation": "名前の通り53。江戸〜京都の旅路の中継地点。"
+    "explanation": "名前の通り53 江戸〜京都の旅路の中継地点"
   },
   {
     "number": 64,
@@ -113,7 +97,7 @@
     "exclude": false,
     "text": "タコの心臓の数",
     "answer": "3つ",
-    "explanation": "イカも3つ。"
+    "explanation": "イカも3つ"
   },
   {
     "number": 12,
@@ -125,20 +109,20 @@
   {
     "number": 60,
     "exclude": false,
-    "text": "初代ガンダム（RX-78-2）の全備重量",
-    "answer": "60.0トン",
-    "explanation": "本体重量43.4トン / 全高18m"
+    "text": "初代ガンダムの全備重量（RX-78-2）",
+    "answer": "60.0t",
+    "explanation": "本体重量43.4t / 全高18m"
   },
-  {
-    "text": "立方数",
-    "answer": "1,8,27,64",
-    "explanation": "ある整数を3乗した数",
+    {
+    "text": "末尾が0の数",
+    "answer": "10,20,30,40,50,60,70",
+    "explanation": "キリ番ボーナス！",
     "fever": true
   },
   {
-    "text": "7の倍数",
-    "answer": "7,14,21,28,35,42,49,56,63,70",
-    "explanation": "ラッキーセブン",
+    "text": "13の倍数",
+    "answer": "13,26,39,52,65",
+    "explanation": "そろそろ全部あいた？",
     "fever": true
   },
   {
@@ -154,15 +138,45 @@
     "fever": true
   },
   {
-    "text": "フィボナッチ数",
-    "answer": "1,2,3,5,8,13,21,34,55",
-    "explanation": "前の2つを足して作る数列",
+    "text": "7の倍数",
+    "answer": "7,14,21,28,35,42,49,56,63,70",
+    "explanation": "ラッキーセブン",
     "fever": true
   },
   {
-    "text": "13の倍数",
-    "answer": "13,26,39,52,65",
-    "explanation": "そろそろ全部あいた？",
+    "text": "3の倍数 または 3のつく数字",
+    "answer": "3,6,9,12,13,15,18,21,23,24,27,30,31,32,33,34,35,36,37,38,39,42,43,45,48,51,53,54,57,60,63,66,69,72,73,75",
+    "explanation": "現在は 「桂三度（かつら さんど）」",
+    "fever": true
+  },
+  {
+  "text": "素数",
+  "answer": "2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73",
+  "explanation": "1と自分自身でしか割り切れない数",
+  "fever": true
+},
+{
+  "text": "延長戦：海に面していない県の数",
+  "answer": "8",
+  "explanation": "栃木・群馬・埼玉・山梨・長野・岐阜・滋賀・奈良",
+  "fever": true
+},
+{
+  "text": "延長戦：現代のひらがなの『50音』の数",
+  "answer": "46",
+  "explanation": "現代の仮名遣いでは『ゐ』『ゑ』を除いた46文字",
+  "fever": true
+},
+{
+    "text": "延長戦：元素『サマリウム（Sm）』の原子番号は？",
+    "answer": "62",
+    "explanation": "サマリウムコバルト磁石でおなじみ",
+    "fever": true
+  },
+  {
+    "text": "最終奥義：ここまで残った数は何？",
+    "answer": "58,68,74",
+    "explanation": "Copilotもさじを投げた数",
     "fever": true
   }
 ]
