@@ -164,7 +164,7 @@ async def quiz_with_id(quiz_id: int):
 
     quiz = quiz_list[quiz_id]
 
-    state.current_item = quiz["text"]
+    state.current_item = quiz["question"]
     state.current_answer = quiz["answer"]
     state.current_explanation = quiz.get("explanation")
 
@@ -181,7 +181,7 @@ async def quiz_with_id(quiz_id: int):
     return {
         "success": True,
         "type": "quiz",
-        "message": quiz["text"],
+        "message": quiz["question"],
         "answer": quiz["answer"],
         "image_q": quiz.get("image_q")
     }

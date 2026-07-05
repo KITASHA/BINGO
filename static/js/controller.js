@@ -38,8 +38,8 @@ async function loadQuizList() {
         // number がある場合は「番号：問題文」で表示
         option.textContent =
             quiz.number
-                ? `${quiz.number}：${quiz.text}`
-                : quiz.text;
+                ? `${quiz.number}：${quiz.question}`
+                : quiz.question;
 
         select.appendChild(option);
     });
