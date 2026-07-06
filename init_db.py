@@ -1,5 +1,5 @@
-from bingo.database import get_connection
-from bingo.models import CREATE_QUIZZES_TABLE
+from database import get_connection
+from models import CREATE_QUIZZES_TABLE
 
 
 def init_db():

@@ -1,1 +1,340 @@
 PS C:\HONEST\BINGO> pyinstaller --onedir --noconsole --name "BINGOツール" --add-data "templates;templates" --add-data "static;static" --add-data "quizzes.json;." main.py
+
+
+
+以下を次チャットへ貼れば、今の状況をほぼ再現できます。
+
+# BINGOアプリ SQLite移行 引継ぎメモ
+
+## プロジェクト概要
+
+FastAPI + HTML + JavaScript で作成した BINGOアプリ。
+
+現在は
+
+```text
+quizzes.json
+↓
+読み込み
+↓
+クイズ出題
+```
+
+で動作している。
+
+最終目標は
+
+```text
+BINGO.exe
+↓
+ローカルFastAPI起動
+↓
+ブラウザ表示
+↓
+SQLite保存
+↓
+クイズ編集機能
+```
+
+である。
+
+公開方法は Webサービス化ではなく EXE配布を採用。
+
+---
+
+## 現在の方針
+
+JSONは将来的に廃止。
+
+構成は
+
+```text
+quizzes.json
+↓
+初回のみインポート
+↓
+SQLite
+↓
+以後SQLiteのみ利用
+```
+
+とする。
+
+SQLiteが正本データ。
+
+---
+
+## 現在のフォルダ
+
+```text
+bingo/
+├ main.py
+├ database.py
+├ models.py
+├ init_db.py
+├ import_quizzes.py
+├ quizzes.json
+├ data/
+│   └ bingo.db
+├ templates/
+└ static/
+```
+
+---
+
+## database.py
+
+SQLite接続用。
+
+DBファイル
+
+```text
+data/bingo.db
+```
+
+を使用。
+
+接続関数
+
+```python
+get_connection()
+```
+
+あり。
+
+---
+
+## models.py
+
+テーブル定義。
+
+JSONの
+
+```json
+{
+  "question": "問題文"
+}
+```
+
+に合わせて
+
+```sql
+question TEXT NOT NULL
+```
+
+へ変更済み。
+
+テーブル
+
+```sql
+quizzes
+```
+
+構成
+
+```sql
+id INTEGER PRIMARY KEY AUTOINCREMENT
+number INTEGER
+question TEXT
+answer TEXT
+explanation TEXT
+image_q TEXT
+image_a TEXT
+fever INTEGER
+exclude INTEGER
+```
+
+---
+
+## init_db.py
+
+実行済み。
+
+```bash
+python init_db.py
+```
+
+成功。
+
+---
+
+## import_quizzes.py
+
+作成済み。
+
+実行結果
+
+```bash
+python import_quizzes.py
+```
+
+↓
+
+```text
+quizzes.json を SQLite に取り込みました
+```
+
+表示。
+
+つまり INSERT は成功している可能性が高い。
+
+---
+
+## 現在確認したいこと
+
+まだ
+
+```text
+check_db.py
+```
+
+は作成していない。
+
+次にやること。
+
+### check_db.py
+
+```python
+from database import get_connection
+
+conn = get_connection()
+
+rows = conn.execute(
+    "SELECT * FROM quizzes"
+).fetchall()
+
+for row in rows[:5]:
+    print(dict(row))
+
+print(f"\n件数: {len(rows)}件")
+
+conn.close()
+```
+
+実行
+
+```bash
+python check_db.py
+```
+
+件数確認。
+
+---
+
+## main.py 現状
+
+まだJSONを読んでいる。
+
+例
+
+```python
+with open(
+    resource_path("quizzes.json"),
+    encoding="utf-8"
+) as f:
+    quiz_list = json.load(f)
+```
+
+が残っている。
+
+---
+
+## 次の作業
+
+SQLiteからクイズ一覧を取得する関数を作る。
+
+例
+
+```python
+from database import get_connection
+
+def load_quizzes():
+    conn = get_connection()
+
+    rows = conn.execute(
+        "SELECT * FROM quizzes"
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(row) for row in rows]
+```
+
+そして
+
+```python
+quiz_list = load_quizzes()
+```
+
+へ置換する。
+
+---
+
+## display.js
+
+実装済み
+
+* 数字ルーレット演出
+* ドラムロール
+* 問題音
+* タイマー音
+* 回答モーダル
+* フォントサイズ自動調整
+
+---
+
+## 公開予定
+
+最終構成
+
+```text
+SQLite
++
+FastAPI
++
+PyInstaller
++
+GitHub Releases
+```
+
+公開手順
+
+```text
+開発
+↓
+git push
+↓
+PyInstaller
+↓
+BINGO.exe
+↓
+GitHub Release
+↓
+配布
+```
+
+---
+
+## 今回の到達点
+
+成功
+
+```text
+SQLite導入
+↓
+テーブル作成
+↓
+quizzes.json取り込み
+```
+
+次回開始地点
+
+```text
+check_db.py作成
+↓
+データ件数確認
+↓
+main.pyをJSON→SQLiteへ変更
+```
+
+次チャットでは「この引継ぎメモの続き」と言えば、そのまま SQLite化の続きから進められます。

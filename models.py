@@ -2,7 +2,7 @@ CREATE_QUIZZES_TABLE = """
 CREATE TABLE IF NOT EXISTS quizzes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     number INTEGER,
-    text TEXT NOT NULL,
+    question TEXT NOT NULL,
     answer TEXT NOT NULL,
     explanation TEXT,
     image_q TEXT,
