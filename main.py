@@ -7,6 +7,7 @@ import subprocess
 
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from database import get_connection
@@ -235,6 +236,72 @@ async def get_state():
         "fever": state.fever,
         "remaining": state.get_remaining()
     }
+
+@app.get("/admin/quizzes")
+async def admin_quizzes(request: Request):
+    conn = get_connection()
+
+    rows = conn.execute(
+        "SELECT * FROM quizzes ORDER BY id"
+    ).fetchall()
+
+    conn.close()
+
+    return templates.TemplateResponse(
+        name="admin_quizzes.html",
+        request=request,
+        context={
+            "quizzes": [dict(row) for row in rows]
+        }
+    )
+
+
+@app.post("/admin/quizzes")
+async def create_quiz(
+    number: int | None = Form(None),
+    question: str = Form(...),
+    answer: str = Form(...),
+    explanation: str = Form(""),
+    image_q: str = Form(""),
+    image_a: str = Form(""),
+    fever: str | None = Form(None),
+    exclude: str | None = Form(None),
+):
+    conn = get_connection()
+
+    conn.execute(
+        """
+        INSERT INTO quizzes (
+            number,
+            question,
+            answer,
+            explanation,
+            image_q,
+            image_a,
+            fever,
+            exclude
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            number,
+            question,
+            answer,
+            explanation,
+            image_q,
+            image_a,
+            1 if fever else 0,
+            1 if exclude else 0
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    global quiz_list
+    quiz_list = load_quizzes()
+
+    return {"success": True}
 
 
 # =========================
