@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import time
 import random
 import threading
@@ -10,6 +9,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from database import get_connection
 
 from state import state
 
@@ -29,11 +29,18 @@ def resource_path(relative_path):
 # =========================
 # クイズデータ読込
 # =========================
-with open(
-    resource_path("quizzes.json"),
-    encoding="utf-8"
-) as f:
-    quiz_list = json.load(f)
+def load_quizzes():
+    conn = get_connection()
+
+    rows = conn.execute(
+        "SELECT * FROM quizzes"
+    ).fetchall()
+
+    conn.close()
+
+    return [dict(row) for row in rows]
+
+quiz_list = load_quizzes()
 
 
 # =========================
