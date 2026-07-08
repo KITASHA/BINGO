@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>クイズ管理</title>
+
+    <script src="/static/js/tailwind.js"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <div class="max-w-7xl mx-auto px-6 py-10">
+
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <p class="text-slate-400 text-sm tracking-widest">BINGO ADMIN</p>
+                <h1 class="text-4xl font-bold mt-2">クイズ管理</h1>
+            </div>
+
+            <a
+                href="/controller"
+                class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
+            >
+                操作画面へ戻る
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <section class="bg-slate-900 rounded-3xl p-6 shadow-xl lg:col-span-1">
+                <h2 class="text-2xl font-bold mb-6">クイズ追加</h2>
+
+                <form method="post" action="/admin/quizzes" class="space-y-5">
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">番号</label>
+                        <input
+                            type="number"
+                            name="number"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="例：43"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">問題</label>
+                        <input
+                            type="text"
+                            name="question"
+                            required
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="問題文"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">答え</label>
+                        <input
+                            type="text"
+                            name="answer"
+                            required
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="答え"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">解説</label>
+                        <textarea
+                            name="explanation"
+                            rows="4"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="解説"
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">問題画像パス</label>
+                        <input
+                            type="text"
+                            name="image_q"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="/static/images/example.jpg"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-2">回答画像パス</label>
+                        <input
+                            type="text"
+                            name="image_a"
+                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
+                            placeholder="/static/images/example_answer.jpg"
+                        >
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="flex items-center gap-3 text-slate-300">
+                            <input type="checkbox" name="fever" class="w-5 h-5">
+                            フィーバー問題
+                        </label>
+
+                        <label class="flex items-center gap-3 text-slate-300">
+                            <input type="checkbox" name="exclude" class="w-5 h-5">
+                            この番号を通常抽選から除外
+                        </label>
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg"
+                    >
+                        追加する
+                    </button>
+                </form>
+            </section>
+
+            <section class="bg-slate-900 rounded-3xl p-6 shadow-xl lg:col-span-2">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">クイズ一覧</h2>
+                    <p class="text-slate-400">{{ quizzes|length }} 件</p>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400">
+                                <th class="py-3 pr-4">ID</th>
+                                <th class="py-3 pr-4">番号</th>
+                                <th class="py-3 pr-4">問題</th>
+                                <th class="py-3 pr-4">答え</th>
+                                <th class="py-3 pr-4">Fever</th>
+                                <th class="py-3 pr-4">除外</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for quiz in quizzes %}
+                            <tr class="border-b border-slate-800 hover:bg-slate-800/60">
+                                <td class="py-4 pr-4 text-slate-500">{{ quiz.id }}</td>
+                                <td class="py-4 pr-4 font-bold">{{ quiz.number or "-" }}</td>
+                                <td class="py-4 pr-4 max-w-xs">{{ quiz.question }}</td>
+                                <td class="py-4 pr-4 text-slate-300">{{ quiz.answer }}</td>
+                                <td class="py-4 pr-4">
+                                    {% if quiz.fever %}
+                                        <span class="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full text-sm">ON</span>
+                                    {% else %}
+                                        <span class="text-slate-600">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-4 pr-4">
+                                    {% if quiz.exclude %}
+                                        <span class="bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full text-sm">除外</span>
+                                    {% else %}
+                                        <span class="text-slate-600">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -11,6 +11,8 @@ from fastapi import FastAPI, Request, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from database import get_connection
+from fastapi.responses import RedirectResponse
+ 
 
 from state import state
 
@@ -237,24 +239,6 @@ async def get_state():
         "remaining": state.get_remaining()
     }
 
-@app.get("/admin/quizzes")
-async def admin_quizzes(request: Request):
-    conn = get_connection()
-
-    rows = conn.execute(
-        "SELECT * FROM quizzes ORDER BY id"
-    ).fetchall()
-
-    conn.close()
-
-    return templates.TemplateResponse(
-        name="admin_quizzes.html",
-        request=request,
-        context={
-            "quizzes": [dict(row) for row in rows]
-        }
-    )
-
 
 @app.post("/admin/quizzes")
 async def create_quiz(
@@ -301,8 +285,30 @@ async def create_quiz(
     global quiz_list
     quiz_list = load_quizzes()
 
-    return {"success": True}
+    return RedirectResponse(
+    url="/admin/quizzes",
+    status_code=303
+)
 
+@app.get("/admin/quizzes")
+async def admin_quizzes(request: Request):
+    conn = get_connection()
+
+    rows = conn.execute(
+        "SELECT * FROM quizzes ORDER BY id DESC"
+    ).fetchall()
+
+    conn.close()
+
+    quizzes = [dict(row) for row in rows]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="admin_quizzes.html",
+        context={
+            "quizzes": quizzes
+        }
+    )
 
 # =========================
 # 起動
