@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from database import get_connection
 from fastapi.responses import RedirectResponse
+
  
 
 from state import state
@@ -308,6 +309,103 @@ async def admin_quizzes(request: Request):
         context={
             "quizzes": quizzes
         }
+    )
+
+@app.post("/admin/quizzes/{quiz_id}/delete")
+async def delete_quiz(quiz_id: int):
+    conn = get_connection()
+
+    conn.execute(
+        "DELETE FROM quizzes WHERE id = ?",
+        (quiz_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    global quiz_list
+    quiz_list = load_quizzes()
+
+    return RedirectResponse(
+        url="/admin/quizzes",
+        status_code=303
+    )
+
+@app.get("/admin/quizzes/{quiz_id}/edit")
+async def edit_quiz_page(request: Request, quiz_id: int):
+    conn = get_connection()
+
+    row = conn.execute(
+        "SELECT * FROM quizzes WHERE id = ?",
+        (quiz_id,)
+    ).fetchone()
+
+    conn.close()
+
+    if row is None:
+        return RedirectResponse(
+            url="/admin/quizzes",
+            status_code=303
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="edit_quiz.html",
+        context={
+            "quiz": dict(row)
+        }
+    )
+
+@app.post("/admin/quizzes/{quiz_id}/edit")
+async def update_quiz(
+    quiz_id: int,
+    number: int | None = Form(None),
+    question: str = Form(...),
+    answer: str = Form(...),
+    explanation: str = Form(""),
+    image_q: str = Form(""),
+    image_a: str = Form(""),
+    fever: str | None = Form(None),
+    exclude: str | None = Form(None),
+):
+    conn = get_connection()
+
+    conn.execute(
+        """
+        UPDATE quizzes
+        SET
+            number = ?,
+            question = ?,
+            answer = ?,
+            explanation = ?,
+            image_q = ?,
+            image_a = ?,
+            fever = ?,
+            exclude = ?
+        WHERE id = ?
+        """,
+        (
+            number,
+            question,
+            answer,
+            explanation,
+            image_q,
+            image_a,
+            1 if fever else 0,
+            1 if exclude else 0,
+            quiz_id
+        )
+    )
+
+    conn.commit()
+    conn.close()
+
+    global quiz_list
+    quiz_list = load_quizzes()
+
+    return RedirectResponse(
+        url="/admin/quizzes",
+        status_code=303
     )
 
 # =========================

@@ -125,35 +125,50 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-700 text-slate-400">
-                                <th class="py-3 pr-4">ID</th>
-                                <th class="py-3 pr-4">番号</th>
+                                <th class="py-3 pr-4 w-20">番号</th>
                                 <th class="py-3 pr-4">問題</th>
-                                <th class="py-3 pr-4">答え</th>
-                                <th class="py-3 pr-4">Fever</th>
-                                <th class="py-3 pr-4">除外</th>
+                                <th class="py-3 pr-4 w-40">操作</th>
                             </tr>
                         </thead>
 
                         <tbody>
                             {% for quiz in quizzes %}
                             <tr class="border-b border-slate-800 hover:bg-slate-800/60">
-                                <td class="py-4 pr-4 text-slate-500">{{ quiz.id }}</td>
-                                <td class="py-4 pr-4 font-bold">{{ quiz.number or "-" }}</td>
-                                <td class="py-4 pr-4 max-w-xs">{{ quiz.question }}</td>
-                                <td class="py-4 pr-4 text-slate-300">{{ quiz.answer }}</td>
-                                <td class="py-4 pr-4">
-                                    {% if quiz.fever %}
-                                        <span class="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full text-sm">ON</span>
-                                    {% else %}
-                                        <span class="text-slate-600">-</span>
-                                    {% endif %}
+                                <td class="py-4 pr-4 font-bold">
+                                    {{ quiz.number or "-" }}
                                 </td>
+
                                 <td class="py-4 pr-4">
-                                    {% if quiz.exclude %}
-                                        <span class="bg-rose-500/20 text-rose-300 px-3 py-1 rounded-full text-sm">除外</span>
-                                    {% else %}
-                                        <span class="text-slate-600">-</span>
-                                    {% endif %}
+                                    <div class="font-semibold truncate max-w-xl">
+                                        {{ quiz.question }}
+                                    </div>
+                                    <div class="text-sm text-slate-500 truncate max-w-xl">
+                                        答え：{{ quiz.answer }}
+                                    </div>
+                                </td>
+
+                                <td class="py-4 pr-4">
+                                    <div class="flex gap-2">
+                                        <a
+                                            href="/admin/quizzes/{{ quiz.id }}/edit"
+                                            class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-sm"
+                                        >
+                                            編集
+                                        </a>
+
+                                        <form
+                                            method="post"
+                                            action="/admin/quizzes/{{ quiz.id }}/delete"
+                                            onsubmit="return confirm('このクイズを削除しますか？');"
+                                        >
+                                            <button
+                                                type="submit"
+                                                class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-sm"
+                                            >
+                                                削除
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
