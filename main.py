@@ -311,6 +311,13 @@ async def admin_quizzes(request: Request):
         }
     )
 
+@app.get("/admin/quizzes/new")
+async def new_quiz(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="new_quiz.html"
+    )
+
 @app.post("/admin/quizzes/{quiz_id}/delete")
 async def delete_quiz(quiz_id: int):
     conn = get_connection()

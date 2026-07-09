@@ -16,13 +16,21 @@
                 <p class="text-slate-400 text-sm tracking-widest">BINGO ADMIN</p>
                 <h1 class="text-4xl font-bold mt-2">クイズ管理</h1>
             </div>
+            <div class="flex gap-3">
+                <a
+                    href="/admin/quizzes/new"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-bold"
+                >
+                    ＋ 新規作成
+                </a>
 
-            <a
-                href="/controller"
-                class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
-            >
-                コントローラーへ
-            </a>
+                <a
+                    href="/controller"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
+                >
+                    コントローラーへ
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -118,6 +126,7 @@
             <section class="bg-slate-900 rounded-3xl p-6 shadow-xl lg:col-span-2">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-2xl font-bold">クイズ一覧</h2>
+                    
                     <p class="text-slate-400">{{ quizzes|length }} 件</p>
                 </div>
 

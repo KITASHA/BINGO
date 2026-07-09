@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クイズ新規作成</title>
+
+    <script src="/static/js/tailwind.js"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+
+    <div class="max-w-4xl mx-auto px-6 py-12">
+
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <p class="text-slate-400 text-sm tracking-widest">
+                    BINGO ADMIN
+                </p>
+
+                <h1 class="text-4xl font-bold mt-2">
+                    クイズ新規作成
+                </h1>
+            </div>
+
+            <a
+                href="/admin/quizzes"
+                class="bg-slate-800 hover:bg-slate-700 px-5 py-3 rounded-xl"
+            >
+                一覧へ戻る
+            </a>
+        </div>
+
+        <div class="bg-slate-900 rounded-3xl p-8 shadow-xl">
+
+            <form method="post" action="/admin/quizzes">
+
+                <div class="space-y-6">
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            番号
+                        </label>
+
+                        <input
+                            type="number"
+                            name="number"
+                            min="0"
+                            step="1"
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            問題
+                        </label>
+
+                        <textarea
+                            name="question"
+                            rows="3"
+                            required
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            答え
+                        </label>
+
+                        <input
+                            type="text"
+                            name="answer"
+                            required
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            解説
+                        </label>
+
+                        <textarea
+                            name="explanation"
+                            rows="4"
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        ></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            問題画像
+                        </label>
+
+                        <input
+                            type="text"
+                            name="image_q"
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                    <div>
+                        <label class="block mb-2 text-slate-300">
+                            答え画像
+                        </label>
+
+                        <input
+                            type="text"
+                            name="image_a"
+                            class="w-full bg-slate-800 rounded-xl px-4 py-3"
+                        >
+                    </div>
+
+                    <div class="flex gap-8">
+
+                        <label class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="fever"
+                                value="1"
+                            >
+                            Fever
+                        </label>
+
+                        <label class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                name="exclude"
+                                value="1"
+                            >
+                            除外
+                        </label>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl font-bold"
+                    >
+                        保存
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

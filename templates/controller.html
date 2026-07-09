@@ -10,21 +10,32 @@
 
 <body class="bg-slate-950 text-white min-h-screen">
     <div class="max-w-5xl mx-auto px-6 py-12">
+
         <div class="flex items-center justify-between mb-10">
             <div>
                 <p class="text-slate-400 text-sm tracking-widest">BINGO ADMIN</p>
                 <h1 class="text-4xl font-bold mt-2">コントローラー</h1>
             </div>
 
-        
+            <div class="flex gap-3">
+                <a
+                    href="/display"
+                    target="_blank"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
+                >
+                    ディスプレイ起動
+                </a>
 
-        <a
-                href="/admin/quizzes"
-                class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
-            >
-                管理画面へ
-            </a>
+                <a
+                    href="/admin/quizzes"
+                    class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-xl"
+                >
+                    管理画面へ
+                </a>
+
+            </div>
         </div>
+
         <div class="bg-slate-900 rounded-3xl p-10 shadow-xl text-center">
             <p class="text-slate-400 text-xl mb-4">
                 操作画面
@@ -39,7 +50,7 @@
                     onclick="drawNumber()"
                     class="bg-blue-600 hover:bg-blue-500 px-8 py-4 rounded-2xl text-xl font-bold"
                 >
-                    抽選する
+                    抽選
                 </button>
 
                 <select
@@ -52,7 +63,7 @@
                     onclick="showQuiz()"
                     class="bg-amber-600 hover:bg-amber-500 px-8 py-4 rounded-2xl text-xl font-bold"
                 >
-                    問題表示
+                    出題
                 </button>
 
                 <button
@@ -63,10 +74,13 @@
                 </button>
             </div>
         </div>
-        <p class="text-white text-lg mb-6">
-        ※音を出すため、最初にdisplay側の画面上のどこかを一度クリックしてください
+
+        <p class="text-slate-400 text-sm mt-6">
+            ※音を出すため、最初にdisplay側の画面上のどこかを一度クリックしてください
         </p>
+
     </div>
-<script src="/static/js/controller.js"></script>
+
+    <script src="/static/js/controller.js"></script>
 </body>
 </html>
