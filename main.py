@@ -5,44 +5,131 @@ import random
 import threading
 import subprocess
 
+from pathlib import Path
+from uuid import uuid4
+
 import uvicorn
-from fastapi import FastAPI, Request
-from fastapi import FastAPI, Request, Form
+
+from fastapi import (
+    FastAPI,
+    Request,
+    Form,
+    File,
+    UploadFile,
+    HTTPException,
+)
+
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
 from database import get_connection
-from fastapi.responses import RedirectResponse
-
- 
-
 from state import state
+
 
 
 # =========================
 # パス設定
 # =========================
 
-def resource_path(relative_path):
-    try:
+def resource_path(relative_path: str) -> str:
+    """
+    templatesや同梱staticなど、
+    PyInstallerに含めた読み取り用ファイルのパスを返す。
+    """
+
+    if hasattr(sys, "_MEIPASS"):
         base_path = sys._MEIPASS
-    except Exception:
+    else:
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
 
+
+def writable_path(relative_path: str) -> Path:
+    """
+    DBやアップロード画像など、
+    実行後に書き込むファイルのパスを返す。
+    """
+
+    if getattr(sys, "frozen", False):
+        base_path = Path(sys.executable).parent
+    else:
+        base_path = Path(__file__).resolve().parent
+
+    return base_path / relative_path
+
+
 # =========================
-# クイズデータ読込
+# 画像保存用設定
 # =========================
-def load_quizzes():
+
+UPLOAD_DIR = writable_path("uploads")
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+ALLOWED_IMAGE_EXTENSIONS = {
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+}
+
+
+# =========================
+# 画像保存用関数
+# =========================
+
+async def save_uploaded_image(
+    upload_file: UploadFile | None,
+    current_path: str = "",
+) -> str:
+    """
+    新しい画像が選択されていれば保存する。
+    選択されていなければ現在の画像パスを返す。
+    """
+
+    if upload_file is None or not upload_file.filename:
+        return current_path
+
+    extension = Path(upload_file.filename).suffix.lower()
+
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        await upload_file.close()
+
+        raise HTTPException(
+            status_code=400,
+            detail="使用できる画像形式はjpg、jpeg、png、gif、webpです。",
+        )
+
+    filename = f"{uuid4().hex}{extension}"
+    save_path = UPLOAD_DIR / filename
+
+    try:
+        contents = await upload_file.read()
+        save_path.write_bytes(contents)
+    finally:
+        await upload_file.close()
+
+    return f"/uploads/{filename}"
+
+
+# =========================
+# クイズデータ読み込み
+# =========================
+
+def load_quizzes() -> list[dict]:
     conn = get_connection()
 
-    rows = conn.execute(
-        "SELECT * FROM quizzes"
-    ).fetchall()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM quizzes"
+        ).fetchall()
 
-    conn.close()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
 
-    return [dict(row) for row in rows]
 
 quiz_list = load_quizzes()
 
@@ -57,10 +144,18 @@ templates = Jinja2Templates(
     directory=resource_path("templates")
 )
 
+# 最初から同梱されている画像・CSS・JavaScript
 app.mount(
     "/static",
     StaticFiles(directory=resource_path("static")),
-    name="static"
+    name="static",
+)
+
+# 管理画面からアップロードした画像
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(UPLOAD_DIR)),
+    name="uploads",
 )
 
 
@@ -68,42 +163,94 @@ app.mount(
 # 共通処理
 # =========================
 
-def add_current_number_to_history():
-    """現在表示中が数字なら履歴に追加する"""
+def add_current_number_to_history() -> None:
+    """現在表示中の内容が数字なら履歴に追加する。"""
+
     if state.current_type == "number":
         state.add_to_history(state.current_number)
 
 
-def reset_answer_state():
-    """回答表示をリセットする"""
+def reset_answer_state() -> None:
+    """回答表示状態をリセットする。"""
+
     state.show_answer = False
 
 
-def get_excluded_numbers():
-    """クイズで除外指定された番号を取得する"""
+def get_excluded_numbers() -> set[int]:
+    """通常抽選から除外するクイズ番号を取得する。"""
+
     return {
         quiz["number"]
         for quiz in quiz_list
-        if quiz.get("exclude") is True
+        if quiz.get("exclude") == 1
+        and quiz.get("number") is not None
     }
 
 
-def open_browser():
-    """起動時に表示画面と操作画面を開く"""
+def open_browser() -> None:
+    """起動時に表示画面と操作画面をEdgeで開く。"""
+
     time.sleep(2)
 
     subprocess.Popen(
-        ["start", "msedge", "--new-window", "http://127.0.0.1:8000/display"],
-        shell=True
+        [
+            "start",
+            "msedge",
+            "--new-window",
+            "http://127.0.0.1:8000/display",
+        ],
+        shell=True,
     )
 
     time.sleep(1)
 
     subprocess.Popen(
-        ["start", "msedge", "--new-window", "http://127.0.0.1:8000/controller"],
-        shell=True
+        [
+            "start",
+            "msedge",
+            "--new-window",
+            "http://127.0.0.1:8000/controller",
+        ],
+        shell=True,
     )
 
+
+def refresh_quiz_list() -> None:
+    """データベースからクイズ一覧を再読み込みする。"""
+
+    global quiz_list
+    quiz_list = load_quizzes()
+
+
+def checkbox_to_int(value: str | None) -> int:
+    """チェックボックスの値を0または1へ変換する。"""
+
+    return 1 if value is not None else 0
+
+
+def parse_optional_number(value: str) -> int | None:
+    """空文字はNone、入力値は0以上の整数へ変換する。"""
+
+    value = value.strip()
+
+    if not value:
+        return None
+
+    try:
+        number = int(value)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="番号には整数を入力してください。",
+        )
+
+    if number < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="番号は0以上にしてください。",
+        )
+
+    return number
 
 # =========================
 # 画面表示
@@ -241,17 +388,27 @@ async def get_state():
     }
 
 
+# =========================
+# クイズ新規登録処理
+# =========================
 @app.post("/admin/quizzes")
 async def create_quiz(
-    number: int | None = Form(None),
+    number: str = Form(""),
     question: str = Form(...),
     answer: str = Form(...),
     explanation: str = Form(""),
-    image_q: str = Form(""),
-    image_a: str = Form(""),
     fever: str | None = Form(None),
     exclude: str | None = Form(None),
+    image_q_file: UploadFile | None = File(None),
+    image_a_file: UploadFile | None = File(None),
 ):
+    image_q = await save_uploaded_image(image_q_file)
+    image_a = await save_uploaded_image(image_a_file)
+
+    number_value = parse_optional_number(number)
+    fever_value = checkbox_to_int(fever)
+    exclude_value = checkbox_to_int(exclude)
+
     conn = get_connection()
 
     conn.execute(
@@ -269,28 +426,30 @@ async def create_quiz(
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
         (
-            number,
-            question,
-            answer,
-            explanation,
+            number_value,
+            question.strip(),
+            answer.strip(),
+            explanation.strip(),
             image_q,
             image_a,
-            1 if fever else 0,
-            1 if exclude else 0
+            fever_value,
+            exclude_value,
         )
     )
 
     conn.commit()
     conn.close()
-
-    global quiz_list
-    quiz_list = load_quizzes()
+    refresh_quiz_list()
 
     return RedirectResponse(
-    url="/admin/quizzes",
-    status_code=303
-)
+        url="/admin/quizzes",
+        status_code=303
+    )
 
+
+# =========================
+# クイズ一覧画面表示
+# =========================
 @app.get("/admin/quizzes")
 async def admin_quizzes(request: Request):
     conn = get_connection()
@@ -311,6 +470,10 @@ async def admin_quizzes(request: Request):
         }
     )
 
+
+# =========================
+# クイズ新規作成画面表示
+# =========================
 @app.get("/admin/quizzes/new")
 async def new_quiz(request: Request):
     return templates.TemplateResponse(
@@ -318,6 +481,10 @@ async def new_quiz(request: Request):
         name="new_quiz.html"
     )
 
+
+# =========================
+# クイズ削除処理
+# =========================
 @app.post("/admin/quizzes/{quiz_id}/delete")
 async def delete_quiz(quiz_id: int):
     conn = get_connection()
@@ -329,30 +496,32 @@ async def delete_quiz(quiz_id: int):
 
     conn.commit()
     conn.close()
-
-    global quiz_list
-    quiz_list = load_quizzes()
+    refresh_quiz_list()
 
     return RedirectResponse(
         url="/admin/quizzes",
         status_code=303
     )
 
+# =========================
+# クイズ編集画面表示
+# =========================
 @app.get("/admin/quizzes/{quiz_id}/edit")
-async def edit_quiz_page(request: Request, quiz_id: int):
+async def edit_quiz(request: Request, quiz_id: int):
     conn = get_connection()
 
-    row = conn.execute(
-        "SELECT * FROM quizzes WHERE id = ?",
-        (quiz_id,)
-    ).fetchone()
-
-    conn.close()
+    try:
+        row = conn.execute(
+            "SELECT * FROM quizzes WHERE id = ?",
+            (quiz_id,)
+        ).fetchone()
+    finally:
+        conn.close()
 
     if row is None:
-        return RedirectResponse(
-            url="/admin/quizzes",
-            status_code=303
+        raise HTTPException(
+            status_code=404,
+            detail="クイズが見つかりません"
         )
 
     return templates.TemplateResponse(
@@ -363,52 +532,79 @@ async def edit_quiz_page(request: Request, quiz_id: int):
         }
     )
 
+# =========================
+# クイズ更新処理
+# =========================
 @app.post("/admin/quizzes/{quiz_id}/edit")
 async def update_quiz(
     quiz_id: int,
-    number: int | None = Form(None),
+    number: str = Form(""),
     question: str = Form(...),
     answer: str = Form(...),
     explanation: str = Form(""),
-    image_q: str = Form(""),
-    image_a: str = Form(""),
+    current_image_q: str = Form(""),
+    current_image_a: str = Form(""),
     fever: str | None = Form(None),
     exclude: str | None = Form(None),
+    image_q_file: UploadFile | None = File(None),
+    image_a_file: UploadFile | None = File(None),
 ):
-    conn = get_connection()
+    number_value = parse_optional_number(number)
+    fever_value = checkbox_to_int(fever)
+    exclude_value = checkbox_to_int(exclude)
 
-    conn.execute(
-        """
-        UPDATE quizzes
-        SET
-            number = ?,
-            question = ?,
-            answer = ?,
-            explanation = ?,
-            image_q = ?,
-            image_a = ?,
-            fever = ?,
-            exclude = ?
-        WHERE id = ?
-        """,
-        (
-            number,
-            question,
-            answer,
-            explanation,
-            image_q,
-            image_a,
-            1 if fever else 0,
-            1 if exclude else 0,
-            quiz_id
-        )
+    image_q = await save_uploaded_image(
+        image_q_file,
+        current_image_q
     )
 
-    conn.commit()
-    conn.close()
+    image_a = await save_uploaded_image(
+        image_a_file,
+        current_image_a
+    )
 
-    global quiz_list
-    quiz_list = load_quizzes()
+    conn = get_connection()
+
+    try:
+        cursor = conn.execute(
+            """
+            UPDATE quizzes
+            SET
+                number = ?,
+                question = ?,
+                answer = ?,
+                explanation = ?,
+                image_q = ?,
+                image_a = ?,
+                fever = ?,
+                exclude = ?
+            WHERE id = ?
+            """,
+            (
+                number_value,
+                question.strip(),
+                answer.strip(),
+                explanation.strip(),
+                image_q,
+                image_a,
+                fever_value,
+                exclude_value,
+                quiz_id,
+            )
+        )
+
+        if cursor.rowcount == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="クイズが見つかりません"
+            )
+
+        conn.commit()
+
+    finally:
+        conn.close()
+
+    refresh_quiz_list()
 
     return RedirectResponse(
         url="/admin/quizzes",

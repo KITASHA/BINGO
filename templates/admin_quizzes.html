@@ -7,15 +7,22 @@
 
     <script src="/static/js/tailwind.js"></script>
 </head>
+
 <body class="bg-slate-950 text-white min-h-screen">
 
     <div class="max-w-7xl mx-auto px-6 py-10">
 
         <div class="flex items-center justify-between mb-10">
             <div>
-                <p class="text-slate-400 text-sm tracking-widest">BINGO ADMIN</p>
-                <h1 class="text-4xl font-bold mt-2">クイズ管理</h1>
+                <p class="text-slate-400 text-sm tracking-widest">
+                    BINGO ADMIN
+                </p>
+
+                <h1 class="text-4xl font-bold mt-2">
+                    クイズ一覧
+                </h1>
             </div>
+
             <div class="flex gap-3">
                 <a
                     href="/admin/quizzes/new"
@@ -33,177 +40,166 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <section class="bg-slate-900 rounded-3xl p-6 shadow-xl">
 
-            <section class="bg-slate-900 rounded-3xl p-6 shadow-xl lg:col-span-1">
-                <h2 class="text-2xl font-bold mb-6">クイズ追加</h2>
+            <div class="flex items-center justify-between mb-6">
+                <p class="text-slate-400">
+                    <span id="visible-count">{{ quizzes|length }}</span> 件
+                </p>
+            </div>
 
-                <form method="post" action="/admin/quizzes" class="space-y-5">
+            <div class="flex flex-col md:flex-row gap-4 mb-6">
 
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">番号</label>
-                        <input
-                            type="number"
-                            name="number"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="例：43"
-                        >
-                    </div>
+    <input
+        type="text"
+        id="search-input"
+        placeholder="問題・答え・番号で検索..."
+        autocomplete="off"
+        class="w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+    >
 
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">問題</label>
-                        <input
-                            type="text"
-                            name="question"
-                            required
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="問題文"
-                        >
-                    </div>
+    <div class="flex items-center gap-3">
+        <label
+            for="sort-select"
+            class="text-sm text-slate-400 whitespace-nowrap"
+        >
+            並び順
+        </label>
 
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">答え</label>
-                        <input
-                            type="text"
-                            name="answer"
-                            required
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="答え"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">解説</label>
-                        <textarea
-                            name="explanation"
-                            rows="4"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="解説"
-                        ></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">問題画像パス</label>
-                        <input
-                            type="text"
-                            name="image_q"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="/static/images/example.jpg"
-                        >
-                    </div>
-
-                    <div>
-                        <label class="block text-sm text-slate-400 mb-2">回答画像パス</label>
-                        <input
-                            type="text"
-                            name="image_a"
-                            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white"
-                            placeholder="/static/images/example_answer.jpg"
-                        >
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="flex items-center gap-3 text-slate-300">
-                            <input type="checkbox" name="fever" class="w-5 h-5">
-                            フィーバー問題
-                        </label>
-
-                        <label class="flex items-center gap-3 text-slate-300">
-                            <input type="checkbox" name="exclude" class="w-5 h-5">
-                            この番号を通常抽選から除外
-                        </label>
-                    </div>
-
-                    <button
-                        type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-4 rounded-xl text-lg"
-                    >
-                        追加する
-                    </button>
-                </form>
-            </section>
-
-            <section class="bg-slate-900 rounded-3xl p-6 shadow-xl lg:col-span-2">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold">クイズ一覧</h2>
-                    
-                    <p class="text-slate-400">{{ quizzes|length }} 件</p>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-700 text-slate-400">
-                                <th class="py-3 pr-4 w-24">ID</th>
-                                <th class="py-3 pr-4">問題</th>
-                                <th class="py-3 pr-4 w-28">状態</th>
-                                <th class="py-3 pr-4 w-44">操作</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {% for quiz in quizzes %}
-                            <tr class="border-b border-slate-800 hover:bg-slate-800/60">
-                                <td class="py-4 pr-4 font-bold">
-                                    {{ quiz.number or "-" }}
-                                </td>
-
-                                <td class="py-4 pr-4">
-                                    <div class="font-semibold truncate max-w-md">
-                                        {{ quiz.question }}
-                                    </div>
-                                    <div class="text-sm text-slate-500 truncate max-w-md">
-                                        答え：{{ quiz.answer }}
-                                    </div>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex gap-2 text-xl">
-                                        {% if quiz.fever == 1 %}
-                                            <span title="Fever">🔥</span>
-                                        {% endif %}
-
-                                        {% if quiz.exclude == 1 %}
-                                            <span title="除外">🚫</span>
-                                        {% endif %}
-
-                                        {% if quiz.image_q or quiz.image_a %}
-                                            <span title="画像あり">🖼️</span>
-                                        {% endif %}
-                                    </div>
-                                </td>
-
-                                <td class="py-4 pr-4 whitespace-nowrap">
-                                    <div class="flex gap-2">
-                                        <a
-                                            href="/admin/quizzes/{{ quiz.id }}/edit"
-                                            class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-sm"
-                                        >
-                                            編集
-                                        </a>
-
-                                        <form
-                                            method="post"
-                                            action="/admin/quizzes/{{ quiz.id }}/delete"
-                                            onsubmit="return confirm('このクイズを削除しますか？');"
-                                        >
-                                            <button
-                                                type="submit"
-                                                class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-sm"
-                                            >
-                                                削除
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-        </div>
+        <select
+            id="sort-select"
+            class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+        >
+            <option value="id-asc">ID順</option>
+            <option value="number-asc">番号順</option>
+            <option value="question-asc">問題文順</option>
+            <option value="status-asc">状態順</option>
+        </select>
     </div>
 
+</div>
+
+            <div class="overflow-x-auto">
+
+                <table class="w-full text-left border-collapse">
+
+                    <thead>
+                        <tr class="border-b border-slate-700 text-slate-400">
+
+                            <th class="py-3 pr-4">
+                                問題
+                            </th>
+
+                            <th class="py-3 pr-4 w-36">
+                                状態
+                            </th>
+
+                            <th class="py-3 pr-4 w-44">
+                                操作
+                            </th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody id="quiz-table-body">
+                        {% for quiz in quizzes %}
+
+                        <tr
+                            class="quiz-row border-b border-slate-800 hover:bg-slate-800/60"
+                            data-id="{{ quiz.id }}"
+                            data-number="{{ quiz.number if quiz.number is not none else 999999 }}"
+                            data-question="{{ quiz.question }}"
+                            data-status="{% if quiz.exclude == 1 %}0{% elif quiz.fever == 1 %}2{% else %}1{% endif %}"
+                            data-search="{{ quiz.number or '' }} {{ quiz.question }} {{ quiz.answer }}"
+                        >
+
+                            <td class="py-4 pr-4">
+                                <div class="font-semibold truncate max-w-4xl">
+                                    {{ quiz.question }}
+                                </div>
+
+                                <div class="text-sm text-slate-500 truncate max-w-4xl">
+                                    答え：{{ quiz.answer }}
+                                </div>
+
+                                <div class="text-xs text-slate-600 mt-1">
+                                    番号：{{ quiz.number or "-" }}
+                                </div>
+                            </td>
+
+                            <td class="py-4 pr-4">
+                                {% if quiz.exclude == 1 %}
+                                    <span class="text-slate-500">
+                                        抽選除外
+                                    </span>
+                                {% elif quiz.fever == 1 %}
+                                    <span>
+                                        🔥 フィーバー
+                                    </span>
+                                {% else %}
+                                    <span>
+                                        🎯 抽選対象
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td class="py-4 pr-4 whitespace-nowrap">
+                                <div class="flex gap-2">
+
+                                    <a
+                                        href="/admin/quizzes/{{ quiz.id }}/edit"
+                                        class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-sm"
+                                    >
+                                        編集
+                                    </a>
+
+                                    <form
+                                        method="post"
+                                        action="/admin/quizzes/{{ quiz.id }}/delete"
+                                        onsubmit="return confirm('このクイズを削除しますか？');"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-sm"
+                                        >
+                                            削除
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+
+                        </tr>
+
+                        {% else %}
+
+                        <tr>
+                            <td
+                                colspan="3"
+                                class="py-12 text-center text-slate-500"
+                            >
+                                クイズが登録されていません
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <p
+                id="no-results"
+                class="hidden py-12 text-center text-slate-500"
+            >
+                該当するクイズがありません
+            </p>
+
+        </section>
+
+    </div>
+<script src="/static/js/admin_quizzes.js"></script>
+    
 </body>
 </html>
