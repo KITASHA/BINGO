@@ -134,9 +134,10 @@
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="border-b border-slate-700 text-slate-400">
-                                <th class="py-3 pr-4 w-20">番号</th>
+                                <th class="py-3 pr-4 w-24">ID</th>
                                 <th class="py-3 pr-4">問題</th>
-                                <th class="py-3 pr-4 w-40">操作</th>
+                                <th class="py-3 pr-4 w-28">状態</th>
+                                <th class="py-3 pr-4 w-44">操作</th>
                             </tr>
                         </thead>
 
@@ -148,15 +149,30 @@
                                 </td>
 
                                 <td class="py-4 pr-4">
-                                    <div class="font-semibold truncate max-w-xl">
+                                    <div class="font-semibold truncate max-w-md">
                                         {{ quiz.question }}
                                     </div>
-                                    <div class="text-sm text-slate-500 truncate max-w-xl">
+                                    <div class="text-sm text-slate-500 truncate max-w-md">
                                         答え：{{ quiz.answer }}
                                     </div>
                                 </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex gap-2 text-xl">
+                                        {% if quiz.fever == 1 %}
+                                            <span title="Fever">🔥</span>
+                                        {% endif %}
 
-                                <td class="py-4 pr-4">
+                                        {% if quiz.exclude == 1 %}
+                                            <span title="除外">🚫</span>
+                                        {% endif %}
+
+                                        {% if quiz.image_q or quiz.image_a %}
+                                            <span title="画像あり">🖼️</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td class="py-4 pr-4 whitespace-nowrap">
                                     <div class="flex gap-2">
                                         <a
                                             href="/admin/quizzes/{{ quiz.id }}/edit"
