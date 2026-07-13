@@ -1,72 +1,87 @@
-const searchInput = document.getElementById("search-input");
-const sortSelect = document.getElementById("sort-select");
-const tableBody = document.getElementById("quiz-table-body");
-const visibleCount = document.getElementById("visible-count");
-const noResults = document.getElementById("no-results");
+document.addEventListener("DOMContentLoaded", function () {
 
-function filterRows() {
-    const keyword = searchInput.value.toLowerCase().trim();
-    const rows = document.querySelectorAll(".quiz-row");
+    const searchInput = document.getElementById("search-input");
+    const sortSelect = document.getElementById("sort-select");
+    const sortOrderSelect = document.getElementById("sort-order");
+    const tableBody = document.getElementById("quiz-table-body");
+    const visibleCount = document.getElementById("visible-count");
+    const noResults = document.getElementById("no-results");
 
-    let count = 0;
+    function filterRows() {
+        const keyword = searchInput.value.toLowerCase().trim();
+        const rows = tableBody.querySelectorAll(".quiz-row");
 
-    rows.forEach(function (row) {
-        const searchText = row.dataset.search.toLowerCase();
-        const isMatch = searchText.includes(keyword);
+        let count = 0;
 
-        row.style.display = isMatch ? "" : "none";
+        rows.forEach(function (row) {
+            const searchText =
+                (row.dataset.search || "").toLowerCase();
 
-        if (isMatch) {
-            count++;
+            const isMatch = searchText.includes(keyword);
+
+            row.style.display = isMatch ? "" : "none";
+
+            if (isMatch) {
+                count++;
+            }
+        });
+
+        visibleCount.textContent = count;
+
+        if (count === 0) {
+            noResults.classList.remove("hidden");
+        } else {
+            noResults.classList.add("hidden");
         }
-    });
-
-    visibleCount.textContent = count;
-
-    if (count === 0) {
-        noResults.classList.remove("hidden");
-    } else {
-        noResults.classList.add("hidden");
     }
-}
 
-function sortRows() {
-    const rows = Array.from(
-        document.querySelectorAll(".quiz-row")
-    );
+    function sortRows() {
+        const rows = Array.from(
+            tableBody.querySelectorAll(".quiz-row")
+        );
 
-    const sortType = sortSelect.value;
+        const sortType = sortSelect.value;
+        const sortOrder = sortOrderSelect.value;
+        const direction = sortOrder === "asc" ? 1 : -1;
 
-    rows.sort(function (a, b) {
-        if (sortType === "id-asc") {
-            return Number(a.dataset.id) - Number(b.dataset.id);
-        }
+        rows.sort(function (a, b) {
+            let result = 0;
 
-        if (sortType === "number-asc") {
-            return Number(a.dataset.number) - Number(b.dataset.number);
-        }
+            if (sortType === "id") {
+                result =
+                    Number(a.dataset.id) -
+                    Number(b.dataset.id);
 
-        if (sortType === "question-asc") {
-            return a.dataset.question.localeCompare(
-                b.dataset.question,
-                "ja"
-            );
-        }
+            } else if (sortType === "number") {
+                result =
+                    Number(a.dataset.number) -
+                    Number(b.dataset.number);
 
-        if (sortType === "status-asc") {
-            return Number(a.dataset.status) - Number(b.dataset.status);
-        }
+            } else if (sortType === "question") {
+                result =
+                    (a.dataset.question || "").localeCompare(
+                        b.dataset.question || "",
+                        "ja"
+                    );
 
-        return 0;
-    });
+            } else if (sortType === "status") {
+                result =
+                    Number(a.dataset.status) -
+                    Number(b.dataset.status);
+            }
 
-    rows.forEach(function (row) {
-        tableBody.appendChild(row);
-    });
-}
+            return result * direction;
+        });
 
-searchInput.addEventListener("input", filterRows);
-sortSelect.addEventListener("change", sortRows);
+        rows.forEach(function (row) {
+            tableBody.appendChild(row);
+        });
+    }
 
-// 初期表示をID順にする
-sortRows();
+    searchInput.addEventListener("input", filterRows);
+    sortSelect.addEventListener("change", sortRows);
+    sortOrderSelect.addEventListener("change", sortRows);
+
+    sortRows();
+    filterRows();
+});
