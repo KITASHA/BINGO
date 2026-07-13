@@ -25,6 +25,7 @@ from fastapi.templating import Jinja2Templates
 
 from database import get_connection
 from state import state
+from init_db import init_db
 
 
 
@@ -131,6 +132,7 @@ def load_quizzes() -> list[dict]:
         conn.close()
 
 
+init_db()
 quiz_list = load_quizzes()
 
 
