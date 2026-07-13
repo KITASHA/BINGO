@@ -47,8 +47,7 @@
                     <span id="visible-count">{{ quizzes|length }}</span> 件
                 </p>
             </div>
-
-            <div class="flex flex-col md:flex-row gap-4 mb-6">
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
 
     <input
         type="text"
@@ -59,6 +58,7 @@
     >
 
     <div class="flex items-center gap-3">
+
         <label
             for="sort-select"
             class="text-sm text-slate-400 whitespace-nowrap"
@@ -70,15 +70,24 @@
             id="sort-select"
             class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
         >
-            <option value="id-asc">ID順</option>
-            <option value="number-asc">番号順</option>
-            <option value="question-asc">問題文順</option>
-            <option value="status-asc">状態順</option>
+            <option value="id">ID順</option>
+            <option value="number">番号順</option>
+            <option value="question">問題文順</option>
+            <option value="status">状態順</option>
         </select>
+
+        <select
+            id="sort-order"
+            aria-label="昇順・降順"
+            class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+        >
+            <option value="asc">昇順</option>
+            <option value="desc">降順</option>
+        </select>
+
     </div>
 
 </div>
-
             <div class="overflow-x-auto">
 
                 <table class="w-full text-left border-collapse">
@@ -199,7 +208,7 @@
         </section>
 
     </div>
-<script src="/static/js/admin_quizzes.js"></script>
+<script src="/static/js/admin_quizzes.js?v=2"></script>
     
 </body>
 </html>
