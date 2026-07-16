@@ -24,6 +24,14 @@
             </div>
 
             <div class="flex gap-3">
+                 <button
+                    type="button"
+                    id="bulk-delete-button"
+                    class="bg-rose-700 hover:bg-rose-600 disabled:bg-slate-700 disabled:text-slate-500 text-white px-4 py-2 rounded-xl"
+                    disabled
+                >
+                    選択削除
+                </button>
                 <a
                     href="/admin/quizzes/new"
                     class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-3 rounded-xl font-bold"
@@ -46,6 +54,7 @@
                 <p class="text-slate-400">
                     <span id="visible-count">{{ quizzes|length }}</span> 件
                 </p>
+                
             </div>
 <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6">
 
@@ -56,6 +65,7 @@
         autocomplete="off"
         class="w-full md:w-1/2 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
     >
+
 
     <div class="flex items-center gap-3">
 
@@ -94,6 +104,14 @@
 
                     <thead>
                         <tr class="border-b border-slate-700 text-slate-400">
+                             <th class="py-3 pr-4 w-12">
+                                <input
+                                    type="checkbox"
+                                    id="select-all"
+                                    class="w-5 h-5 cursor-pointer"
+                                    aria-label="すべて選択"
+                                >
+                            </th>
 
                             <th class="py-3 pr-4">
                                 問題
@@ -103,25 +121,34 @@
                                 状態
                             </th>
 
-                            <th class="py-3 pr-4 w-44">
-                                操作
-                            </th>
-
                         </tr>
                     </thead>
 
                     <tbody id="quiz-table-body">
+
                         {% for quiz in quizzes %}
 
                         <tr
-                            class="quiz-row border-b border-slate-800 hover:bg-slate-800/60"
+                            class="quiz-row border-b border-slate-800 hover:bg-slate-800/60 cursor-pointer"
                             data-id="{{ quiz.id }}"
                             data-number="{{ quiz.number if quiz.number is not none else 999999 }}"
                             data-question="{{ quiz.question }}"
                             data-status="{% if quiz.exclude == 1 %}0{% elif quiz.fever == 1 %}2{% else %}1{% endif %}"
                             data-search="{{ quiz.number or '' }} {{ quiz.question }} {{ quiz.answer }}"
+                            data-edit-url="/admin/quizzes/{{ quiz.id }}/edit"
                         >
 
+                            <!-- 選択チェックボックス -->
+                            <td class="py-4 pr-4">
+                                <input
+                                    type="checkbox"
+                                    class="quiz-checkbox w-5 h-5 cursor-pointer"
+                                    value="{{ quiz.id }}"
+                                    aria-label="{{ quiz.question }}を選択"
+                                >
+                            </td>
+
+                            <!-- 問題 -->
                             <td class="py-4 pr-4">
                                 <div class="font-semibold truncate max-w-4xl">
                                     {{ quiz.question }}
@@ -136,6 +163,7 @@
                                 </div>
                             </td>
 
+                            <!-- 状態 -->
                             <td class="py-4 pr-4">
                                 {% if quiz.exclude == 1 %}
                                     <span class="text-slate-500">
@@ -152,32 +180,6 @@
                                 {% endif %}
                             </td>
 
-                            <td class="py-4 pr-4 whitespace-nowrap">
-                                <div class="flex gap-2">
-
-                                    <a
-                                        href="/admin/quizzes/{{ quiz.id }}/edit"
-                                        class="bg-sky-600 hover:bg-sky-500 text-white px-3 py-2 rounded-lg text-sm"
-                                    >
-                                        編集
-                                    </a>
-
-                                    <form
-                                        method="post"
-                                        action="/admin/quizzes/{{ quiz.id }}/delete"
-                                        onsubmit="return confirm('このクイズを削除しますか？');"
-                                    >
-                                        <button
-                                            type="submit"
-                                            class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-lg text-sm"
-                                        >
-                                            削除
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </td>
-
                         </tr>
 
                         {% else %}
@@ -192,6 +194,7 @@
                         </tr>
 
                         {% endfor %}
+
                     </tbody>
 
                 </table>
@@ -208,7 +211,6 @@
         </section>
 
     </div>
-<script src="/static/js/admin_quizzes.js?v=2"></script>
-    
+<script src="/static/js/admin_quizzes.js"></script>
 </body>
 </html>
