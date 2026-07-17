@@ -1,9 +1,9 @@
 import os
-import sys
-import time
 import random
-import threading
 import subprocess
+import sys
+import threading
+import time
 
 from pathlib import Path
 from uuid import uuid4
@@ -12,26 +12,24 @@ import uvicorn
 
 from fastapi import (
     FastAPI,
-    Request,
-    Form,
     File,
-    UploadFile,
+    Form,
     HTTPException,
+    Request,
+    UploadFile,
 )
-
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-
-from database import get_connection
-from state import state
-from init_db import init_db
-from import_quizzes import import_quizzes, is_quiz_database_empty
 from pydantic import BaseModel
 
-
-class BulkDeleteRequest(BaseModel):
-    quiz_ids: list[int]
+from database import get_connection
+from import_quizzes import (
+    import_quizzes,
+    is_quiz_database_empty,
+)
+from init_db import init_db
+from state import state
 
 
 # =========================
@@ -158,6 +156,9 @@ def refresh_quiz_list():
 # FastAPI設定
 # =========================
 
+class BulkDeleteRequest(BaseModel):
+    quiz_ids: list[int]
+    
 app = FastAPI()
 
 templates = Jinja2Templates(
