@@ -202,16 +202,52 @@
 
             </div>
 
-            <p
-                id="no-results"
-                class="hidden py-12 text-center text-slate-500"
-            >
-                該当するクイズがありません
-            </p>
-
         </section>
 
     </div>
-<script src="/static/js/admin_quizzes.js"></script>
+        </div>
+
+    {% if show_initial_quiz_dialog %}
+
+    <div
+        id="initial-quiz-dialog"
+        class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4"
+    >
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-3xl shadow-2xl text-center max-w-md w-full">
+
+            <h2 class="text-2xl font-bold mb-4">
+                初期クイズを読み込みますか？
+            </h2>
+
+            <p class="text-slate-400 mb-8">
+                サンプルとして用意された初期クイズを登録できます。
+            </p>
+
+            <div class="flex justify-center gap-4">
+
+                <button
+                    type="button"
+                    onclick="importDefaultQuizzes()"
+                    class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold"
+                >
+                    読み込む
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeInitialQuizDialog()"
+                    class="bg-slate-700 hover:bg-slate-600 text-white px-6 py-3 rounded-xl"
+                >
+                    読み込まない
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+    {% endif %}
+
+    <script src="/static/js/admin_quizzes.js"></script>
 </body>
 </html>

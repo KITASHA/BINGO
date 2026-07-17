@@ -26,7 +26,12 @@ from fastapi.templating import Jinja2Templates
 from database import get_connection
 from state import state
 from init_db import init_db
+from import_quizzes import import_quizzes, is_quiz_database_empty
+from pydantic import BaseModel
 
+
+class BulkDeleteRequest(BaseModel):
+    quiz_ids: list[int]
 
 
 # =========================
@@ -114,26 +119,39 @@ async def save_uploaded_image(
 
     return f"/uploads/{filename}"
 
+init_db()
 
 # =========================
 # クイズデータ読み込み
 # =========================
 
-def load_quizzes() -> list[dict]:
+def load_quizzes():
     conn = get_connection()
 
     try:
         rows = conn.execute(
-            "SELECT * FROM quizzes"
+            """
+            SELECT *
+            FROM quizzes
+            ORDER BY id ASC
+            """
         ).fetchall()
 
         return [dict(row) for row in rows]
+
     finally:
         conn.close()
 
 
-init_db()
 quiz_list = load_quizzes()
+
+
+def refresh_quiz_list():
+    new_quizzes = load_quizzes()
+
+    quiz_list.clear()
+    quiz_list.extend(new_quizzes)
+
 
 
 # =========================
@@ -159,6 +177,37 @@ app.mount(
     StaticFiles(directory=str(UPLOAD_DIR)),
     name="uploads",
 )
+
+
+# =========================
+# 初期クイズ読み込み
+# =========================
+@app.post("/admin/quizzes/import-default")
+async def import_default_quizzes_api():
+    try:
+        if not is_quiz_database_empty():
+            return {
+                "success": False,
+                "message": "すでにクイズが登録されています。"
+            }
+
+        imported_count = import_quizzes()
+
+        refresh_quiz_list()
+
+
+        return {
+            "success": True,
+            "imported_count": imported_count
+        }
+
+    except Exception as error:
+        print("初期クイズ読み込みエラー:", repr(error))
+
+        return {
+            "success": False,
+            "message": f"{type(error).__name__}: {error}"
+        }
 
 
 # =========================
@@ -468,7 +517,8 @@ async def admin_quizzes(request: Request):
         request=request,
         name="admin_quizzes.html",
         context={
-            "quizzes": quizzes
+            "quizzes": quizzes,
+            "show_initial_quiz_dialog": is_quiz_database_empty()
         }
     )
 
@@ -483,9 +533,52 @@ async def new_quiz(request: Request):
         name="new_quiz.html"
     )
 
+# =========================
+# クイズ一括削除処理
+# =========================
+
+@app.post("/admin/quizzes/bulk-delete")
+async def bulk_delete_quizzes(
+    request_data: BulkDeleteRequest
+):
+    quiz_ids = request_data.quiz_ids
+
+    if not quiz_ids:
+        return {
+            "success": False,
+            "message": "削除対象が選択されていません。"
+        }
+
+    placeholders = ",".join(
+        "?" for _ in quiz_ids
+    )
+
+    conn = get_connection()
+
+    try:
+        cursor = conn.execute(
+            f"""
+            DELETE FROM quizzes
+            WHERE id IN ({placeholders})
+            """,
+            quiz_ids
+        )
+
+        conn.commit()
+        deleted_count = cursor.rowcount
+
+    finally:
+        conn.close()
+
+    refresh_quiz_list()
+
+    return {
+        "success": True,
+        "deleted_count": deleted_count
+    }
 
 # =========================
-# クイズ削除処理
+# クイズ個別削除処理
 # =========================
 @app.post("/admin/quizzes/{quiz_id}/delete")
 async def delete_quiz(quiz_id: int):
