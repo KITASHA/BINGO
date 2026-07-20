@@ -84,5 +84,41 @@ async function toggleAnswer() {
 }
 
 
+const shutdownButton = document.getElementById("shutdown-btn");
+
+shutdownButton.addEventListener("click", async () => {
+    const confirmed = confirm("BINGOツールを終了しますか？");
+
+    if (!confirmed) {
+        return;
+    }
+
+    shutdownButton.disabled = true;
+    shutdownButton.textContent = "終了中...";
+
+    try {
+        await fetch("/shutdown", {
+            method: "POST"
+        });
+
+        document.body.innerHTML = `
+            <div class="min-h-screen flex items-center justify-center bg-slate-950 text-white">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold mb-4">
+                        BINGOツールを終了しました
+                    </h1>
+                    <p class="text-slate-400">
+                        この画面とビンゴ表示画面を閉じてください。
+                    </p>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        alert("終了処理に失敗しました。");
+        shutdownButton.disabled = false;
+        shutdownButton.textContent = "終了";
+    }
+});
+
 // 初期表示時にクイズ一覧を読み込む
 loadQuizList();

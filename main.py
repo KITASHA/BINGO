@@ -4,6 +4,7 @@ import subprocess
 import sys
 import threading
 import time
+import signal
 
 from datetime import datetime
 from pathlib import Path
@@ -29,6 +30,8 @@ from import_quizzes import load_quizzes_from_json
 from export_quizzes import get_export_quizzes
 from init_db import init_db
 from state import state
+
+server = None
 
 
 APP_NAME = "SPECIAL BINGO"
@@ -770,9 +773,21 @@ async def import_quizzes_api(
 if __name__ == "__main__":
     threading.Thread(target=open_browser).start()
 
-    uvicorn.run(
+    config = uvicorn.Config(
         app,
         host="127.0.0.1",
         port=8000,
         log_config=None
     )
+
+    server = uvicorn.Server(config)
+    server.run()
+
+@app.post("/shutdown")
+async def shutdown():
+    global server
+
+    if server is not None:
+        server.should_exit = True
+
+    return {"success": True}
