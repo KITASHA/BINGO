@@ -5,6 +5,7 @@ import sys
 import threading
 import time
 
+from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -18,7 +19,7 @@ from fastapi import (
     Request,
     UploadFile,
 )
-from fastapi.responses import RedirectResponse
+from fastapi.responses import  JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -28,8 +29,10 @@ from import_quizzes import (
     import_quizzes,
     is_quiz_database_empty,
 )
+from export_quizzes import get_export_quizzes
 from init_db import init_db
 from state import state
+
 
 APP_NAME = "SPECIAL BINGO"
 APP_VERSION = "1.0.0"
@@ -710,6 +713,33 @@ async def update_quiz(
     return RedirectResponse(
         url="/admin/quizzes",
         status_code=303
+    )
+
+@app.get("/admin/quizzes/export")
+async def export_quizzes_api():
+    quizzes = get_export_quizzes()
+
+    export_data = {
+        "app": APP_NAME,
+        "version": APP_VERSION,
+        "exported_at": datetime.now().isoformat(
+            timespec="seconds"
+        ),
+        "quizzes": quizzes,
+    }
+
+    filename = (
+        f"bingo_quizzes_"
+        f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    )
+
+    return JSONResponse(
+        content=export_data,
+        headers={
+            "Content-Disposition": (
+                f'attachment; filename="{filename}"'
+            )
+        },
     )
 
 # =========================
