@@ -31,6 +31,9 @@ from import_quizzes import (
 from init_db import init_db
 from state import state
 
+APP_NAME = "SPECIAL BINGO"
+APP_VERSION = "1.0.0"
+
 
 # =========================
 # パス設定
@@ -158,12 +161,14 @@ def refresh_quiz_list():
 
 class BulkDeleteRequest(BaseModel):
     quiz_ids: list[int]
-    
+
 app = FastAPI()
 
 templates = Jinja2Templates(
     directory=resource_path("templates")
 )
+templates.env.globals["app_name"] = APP_NAME
+templates.env.globals["app_version"] = APP_VERSION
 
 # 最初から同梱されている画像・CSS・JavaScript
 app.mount(
