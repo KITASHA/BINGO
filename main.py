@@ -25,10 +25,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from database import get_connection
-from import_quizzes import (
-    import_quizzes,
-    is_quiz_database_empty,
-)
+from import_quizzes import load_quizzes_from_json
 from export_quizzes import get_export_quizzes
 from init_db import init_db
 from state import state
@@ -186,37 +183,6 @@ app.mount(
     StaticFiles(directory=str(UPLOAD_DIR)),
     name="uploads",
 )
-
-
-# =========================
-# 初期クイズ読み込み
-# =========================
-@app.post("/admin/quizzes/import-default")
-async def import_default_quizzes_api():
-    try:
-        if not is_quiz_database_empty():
-            return {
-                "success": False,
-                "message": "すでにクイズが登録されています。"
-            }
-
-        imported_count = import_quizzes()
-
-        refresh_quiz_list()
-
-
-        return {
-            "success": True,
-            "imported_count": imported_count
-        }
-
-    except Exception as error:
-        print("初期クイズ読み込みエラー:", repr(error))
-
-        return {
-            "success": False,
-            "message": f"{type(error).__name__}: {error}"
-        }
 
 
 # =========================
@@ -526,8 +492,7 @@ async def admin_quizzes(request: Request):
         request=request,
         name="admin_quizzes.html",
         context={
-            "quizzes": quizzes,
-            "show_initial_quiz_dialog": is_quiz_database_empty()
+            "quizzes": quizzes
         }
     )
 
@@ -715,6 +680,10 @@ async def update_quiz(
         status_code=303
     )
 
+
+# =========================
+# クイズデータエクスポート
+# =========================
 @app.get("/admin/quizzes/export")
 async def export_quizzes_api():
     quizzes = get_export_quizzes()
@@ -741,6 +710,58 @@ async def export_quizzes_api():
             )
         },
     )
+
+# =========================
+# クイズデータインポート
+# =========================
+
+@app.post("/admin/quizzes/import")
+async def import_quizzes_api(
+    file: UploadFile = File(...),
+):
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="JSONファイルを選択してください。",
+        )
+
+    if not file.filename.lower().endswith(".json"):
+        raise HTTPException(
+            status_code=400,
+            detail="JSONファイルを選択してください。",
+        )
+
+    try:
+        json_bytes = await file.read()
+
+        imported_count = load_quizzes_from_json(
+            json_bytes=json_bytes,
+        )
+
+        refresh_quiz_list()
+
+        return {
+            "success": True,
+            "imported_count": imported_count,
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    except Exception as error:
+        print(f"クイズインポートエラー: {error}")
+
+        raise HTTPException(
+            status_code=500,
+            detail="クイズの読み込みに失敗しました。",
+        )
+
+    finally:
+        await file.close()
+
 
 # =========================
 # 起動

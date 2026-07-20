@@ -1,81 +1,178 @@
 import json
-import os
-import sys
 
 from database import get_connection
 
 
-def resource_path(relative_path: str) -> str:
-    if hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS
+QUIZ_FIELDS = (
+    "number",
+    "question",
+    "answer",
+    "explanation",
+    "image_q",
+    "image_a",
+    "fever",
+    "exclude",
+)
+
+
+INSERT_QUIZ_SQL = """
+INSERT INTO quizzes (
+    number,
+    question,
+    answer,
+    explanation,
+    image_q,
+    image_a,
+    fever,
+    exclude
+)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+"""
+
+
+def validate_quiz_data(quiz: dict, index: int) -> dict:
+    """
+    JSON内の1件のクイズを検証し、
+    DB登録用の形に整える。
+    """
+
+    if not isinstance(quiz, dict):
+        raise ValueError(
+            f"{index + 1}件目のクイズ形式が正しくありません。"
+        )
+
+    question = str(
+        quiz.get("question") or ""
+    ).strip()
+
+    answer = str(
+        quiz.get("answer") or ""
+    ).strip()
+
+    if not question:
+        raise ValueError(
+            f"{index + 1}件目の問題文が空です。"
+        )
+
+    if not answer:
+        raise ValueError(
+            f"{index + 1}件目の答えが空です。"
+        )
+
+    number = quiz.get("number")
+
+    if number in ("", None):
+        number = None
     else:
-        base_path = os.path.abspath(".")
+        try:
+            number = int(number)
+        except (TypeError, ValueError) as error:
+            raise ValueError(
+                f"{index + 1}件目の番号が正しくありません。"
+            ) from error
 
-    return os.path.join(base_path, relative_path)
+    fever = 1 if quiz.get("fever") in (
+        1,
+        "1",
+        True,
+        "true",
+        "True",
+    ) else 0
+
+    exclude = 1 if quiz.get("exclude") in (
+        1,
+        "1",
+        True,
+        "true",
+        "True",
+    ) else 0
+
+    return {
+        "number": number,
+        "question": question,
+        "answer": answer,
+        "explanation": quiz.get("explanation") or None,
+        "image_q": quiz.get("image_q") or None,
+        "image_a": quiz.get("image_a") or None,
+        "fever": fever,
+        "exclude": exclude,
+    }
 
 
-def is_quiz_database_empty() -> bool:
+def load_quizzes_from_json(
+    json_bytes: bytes,
+) -> int:
+    """
+    アップロードされたJSONを読み込み、
+    クイズを既存データへ追加登録する。
+    """
+
+    try:
+        text = json_bytes.decode("utf-8-sig")
+
+    except UnicodeDecodeError as error:
+        raise ValueError(
+            "JSONファイルをUTF-8形式で保存してください。"
+        ) from error
+
+    try:
+        data = json.loads(text)
+
+    except json.JSONDecodeError as error:
+        raise ValueError(
+            "JSONの形式が正しくありません。"
+            f" 行: {error.lineno}"
+        ) from error
+
+    # エクスポート形式
+    # {"app": "...", "quizzes": [...]}
+    if isinstance(data, dict):
+        quizzes = data.get("quizzes")
+
+    # 以前の初期クイズ形式
+    # [{...}, {...}]
+    elif isinstance(data, list):
+        quizzes = data
+
+    else:
+        raise ValueError(
+            "JSONの内容がクイズ一覧ではありません。"
+        )
+
+    if not isinstance(quizzes, list):
+        raise ValueError(
+            "quizzesが配列になっていません。"
+        )
+
+    if not quizzes:
+        raise ValueError(
+            "読み込めるクイズがありません。"
+        )
+
+    validated_quizzes = [
+        validate_quiz_data(quiz, index)
+        for index, quiz in enumerate(quizzes)
+    ]
+
+    quiz_values = [
+        tuple(
+            quiz[field]
+            for field in QUIZ_FIELDS
+        )
+        for quiz in validated_quizzes
+    ]
+
     conn = get_connection()
 
     try:
-        count = conn.execute(
-            "SELECT COUNT(*) FROM quizzes"
-        ).fetchone()[0]
-
-        return count == 0
-
-    finally:
-        conn.close()
-
-
-def import_quizzes() -> int:
-    json_path = resource_path("quizzes.json")
-
-    with open(json_path, "r", encoding="utf-8") as file:
-        quiz_list = json.load(file)
-
-    conn = get_connection()
-    imported_count = 0
-
-    try:
-        for quiz in quiz_list:
-            question = quiz.get("question") or quiz.get("text")
-            answer = quiz.get("answer")
-
-            if not question or not answer:
-                print("読み込み対象外:", quiz)
-                continue
-
-            conn.execute(
-                """
-                INSERT INTO quizzes (
-                    number,
-                    question,
-                    answer,
-                    explanation,
-                    image_q,
-                    image_a,
-                    fever,
-                    exclude
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    quiz.get("number"),
-                    question,
-                    answer,
-                    quiz.get("explanation"),
-                    quiz.get("image_q") or quiz.get("image"),
-                    quiz.get("image_a"),
-                    1 if quiz.get("fever") else 0,
-                    1 if quiz.get("exclude") else 0,
-                )
-            )
-
-            imported_count += 1
+        conn.executemany(
+            INSERT_QUIZ_SQL,
+            quiz_values,
+        )
 
         conn.commit()
-        return imported_count
+
+        return len(validated_quizzes)
 
     except Exception:
         conn.rollback()
@@ -83,8 +180,3 @@ def import_quizzes() -> int:
 
     finally:
         conn.close()
-
-
-if __name__ == "__main__":
-    count = import_quizzes()
-    print(f"{count}問をSQLiteに取り込みました")

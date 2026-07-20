@@ -1,14 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search-input");
-    const sortSelect = document.getElementById("sort-select");
-    const sortOrderSelect = document.getElementById("sort-order");
-    const tableBody = document.getElementById("quiz-table-body");
-    const visibleCount = document.getElementById("visible-count");
-    const noResults = document.getElementById("no-results");
-    const selectAllCheckbox = document.getElementById("select-all");
-    const bulkDeleteButton = document.getElementById(
-        "bulk-delete-button"
-    );
+
+    const searchInput =
+        document.getElementById("search-input");
+
+    const sortSelect =
+        document.getElementById("sort-select");
+
+    const sortOrderSelect =
+        document.getElementById("sort-order");
+
+    const tableBody =
+        document.getElementById("quiz-table-body");
+
+    const visibleCount =
+        document.getElementById("visible-count");
+
+    const noResults =
+        document.getElementById("no-results");
+
+    const selectAllCheckbox =
+        document.getElementById("select-all");
+
+    const bulkDeleteButton =
+        document.getElementById("bulk-delete-button");
+
+    const importButton =
+        document.getElementById("import-button");
+
+    const importFileInput =
+        document.getElementById("quiz-import-file");
+
+    console.log(importButton);
+    console.log(importFileInput);
+
 
     /*
      * クイズのチェックボックス一覧を取得
@@ -380,6 +404,87 @@ document.addEventListener("DOMContentLoaded", function () {
         );
     }
 
+if (importButton && importFileInput) {
+
+    importButton.addEventListener("click", () => {
+        importFileInput.value = "";
+        importFileInput.click();
+    });
+
+
+    importFileInput.addEventListener(
+    "change",
+    async function () {
+
+        console.log("changeイベント");
+
+        const file = importFileInput.files[0];
+
+        console.log(file);
+
+        if (!file) {
+            console.log("ファイルなし");
+            return;
+        }
+
+        console.log("ここまで来た");
+
+
+            const confirmed = confirm(
+                `${file.name} を読み込みます。\n\n` +
+                "現在のクイズに追加しますか？"
+            );
+
+            if (!confirmed) {
+                importFileInput.value = "";
+                return;
+            }
+
+            const formData = new FormData();
+
+            formData.append("file", file);
+            importButton.disabled = true;
+            importButton.textContent = "読み込み中...";
+
+            try {
+                const response = await fetch(
+                    "/admin/quizzes/import",
+                    {
+                        method: "POST",
+                        body: formData,
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.detail ||
+                        "インポートに失敗しました。"
+                    );
+                }
+
+                alert(
+                    `${data.imported_count}問を読み込みました。`
+                );
+
+                window.location.reload();
+
+            } catch (error) {
+                console.error(error);
+
+                alert(
+                    error.message ||
+                    "インポートに失敗しました。"
+                );
+
+                importButton.disabled = false;
+                importButton.textContent = "インポート";
+            }
+        }
+    );
+}
+
     /*
      * 初期表示
      */
@@ -389,55 +494,3 @@ document.addEventListener("DOMContentLoaded", function () {
     updateSelectAllCheckbox();
 });
 
-
-/*
- * 初期クイズ確認画面を閉じる
- *
- * HTMLのonclick属性から呼ぶため、
- * DOMContentLoadedの外側に置く。
- */
-function closeInitialQuizDialog() {
-    const dialog = document.getElementById(
-        "initial-quiz-dialog"
-    );
-
-    if (dialog) {
-        dialog.remove();
-    }
-}
-
-async function importDefaultQuizzes() {
-
-    try {
-        const response = await fetch(
-            "/admin/quizzes/import-default",
-            {
-                method: "POST"
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(
-                data.message ||
-                "初期クイズを読み込めませんでした。"
-            );
-        }
-
-        alert(
-            `${data.imported_count}問を読み込みました。`
-        );
-
-        window.location.reload();
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            error.message ||
-            "初期クイズの読み込みに失敗しました。"
-        );
-    }
-}
